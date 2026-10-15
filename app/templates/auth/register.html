@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block title %}Register - Toko PBL 306{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-md-6">
+    <div class="card shadow-sm">
+      <div class="card-body p-4">
+        <h4 class="mb-3">Registrasi Customer Baru</h4>
+        <form method="post">
+          {{ form.hidden_tag() }}
+          <div class="mb-3">
+            {{ form.username.label(class="form-label") }}
+            {{ form.username(class="form-control") }}
+            {% for err in form.username.errors %}<small class="text-danger">{{ err }}</small>{% endfor %}
+          </div>
+          <div class="mb-3">
+            {{ form.email.label(class="form-label") }}
+            {{ form.email(class="form-control") }}
+            {% for err in form.email.errors %}<small class="text-danger">{{ err }}</small>{% endfor %}
+          </div>
+          <div class="mb-3">
+            {{ form.full_name.label(class="form-label") }}
+            {{ form.full_name(class="form-control") }}
+          </div>
+          <div class="mb-3">
+            {{ form.password.label(class="form-label") }}
+            {{ form.password(class="form-control") }}
+            {% for err in form.password.errors %}<small class="text-danger">{{ err }}</small>{% endfor %}
+          </div>
+          <div class="mb-3">
+            {{ form.confirm_password.label(class="form-label") }}
+            {{ form.confirm_password(class="form-control") }}
+            {% for err in form.confirm_password.errors %}<small class="text-danger">{{ err }}</small>{% endfor %}
+          </div>
+          {{ form.submit(class="btn btn-success w-100") }}
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

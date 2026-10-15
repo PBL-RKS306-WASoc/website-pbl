@@ -1,0 +1,16 @@
+Flask
+Flask-SQLAlchemy
+Flask-Migrate
+Flask-Login
+Flask-WTF
+PyMySQL
+cryptography
+argon2-cffi
+python-dotenv
+Pillow
+tzdata
+gunicorn; sys_platform != "win32"
+pytest
+ruff
+bandit
+pip-audit
