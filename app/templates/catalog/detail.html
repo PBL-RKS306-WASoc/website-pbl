@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block title %}{{ product.name }} - Toko PBL 306{% endblock %}
+
+{% block content %}
+<div class="card shadow-sm mb-4">
+  <div class="card-body p-4">
+    <span class="badge bg-secondary mb-2">{{ product.category.name }}</span>
+    <h3>{{ product.name }}</h3>
+    <h4 class="text-primary fw-bold my-3">Rp {{ "{:,}".format(product.price_idr).replace(",", ".") }}</h4>
+    <p class="text-muted">Stok tersedia: <strong>{{ product.stock }}</strong></p>
+    <hr>
+    <h6>Deskripsi Barang:</h6>
+    <p>{{ product.description or "Tidak ada deskripsi." }}</p>
+    <a href="{{ url_for('catalog.index') }}" class="btn btn-outline-secondary mt-2">&laquo; Kembali ke Katalog</a>
+  </div>
+</div>
+{% endblock %}

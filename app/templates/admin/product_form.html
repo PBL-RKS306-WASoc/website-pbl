@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block title %}{{ title }} - Toko PBL 306{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-md-7">
+    <div class="card shadow-sm">
+      <div class="card-body p-4">
+        <h4 class="mb-3">{{ title }}</h4>
+        <form method="post">
+          {{ form.hidden_tag() }}
+          <div class="mb-3">
+            {{ form.name.label(class="form-label") }}
+            {{ form.name(class="form-control") }}
+          </div>
+          <div class="mb-3">
+            {{ form.category_id.label(class="form-label") }}
+            {{ form.category_id(class="form-select") }}
+          </div>
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              {{ form.price_idr.label(class="form-label") }}
+              {{ form.price_idr(class="form-control") }}
+            </div>
+            <div class="col-md-6 mb-3">
+              {{ form.stock.label(class="form-label") }}
+              {{ form.stock(class="form-control") }}
+            </div>
+          </div>
+          <div class="mb-3">
+            {{ form.description.label(class="form-label") }}
+            {{ form.description(class="form-control", rows=4) }}
+          </div>
+          <div class="form-check mb-3">
+            {{ form.is_active(class="form-check-input") }}
+            {{ form.is_active.label(class="form-check-label") }}
+          </div>
+          <div class="d-flex gap-2">
+            {{ form.submit(class="btn btn-primary") }}
+            <a href="{{ url_for('admin.products') }}" class="btn btn-outline-secondary">Batal</a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block title %}Dashboard Admin - Toko PBL 306{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <h3>Dashboard Admin</h3>
+  <span class="badge bg-warning text-dark fs-6">Akses Khusus Administrator</span>
+</div>
+
+<div class="row g-3 mb-4">
+  <div class="col-md-4">
+    <div class="card shadow-sm border-primary">
+      <div class="card-body">
+        <h6 class="text-muted">Total Produk Katalog</h6>
+        <h2 class="mb-0">{{ total_products }}</h2>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="card shadow-sm border-success">
+      <div class="card-body">
+        <h6 class="text-muted">Total Akun Pengguna</h6>
+        <h2 class="mb-0">{{ total_users }}</h2>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="card shadow-sm border-info">
+      <div class="card-body">
+        <h6 class="text-muted">Total Pesanan</h6>
+        <h2 class="mb-0">{{ total_orders }}</h2>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="card shadow-sm">
+  <div class="card-body">
+    <h5>Menu Manajemen Toko</h5>
+    <div class="d-flex gap-2 mt-3">
+      <a href="{{ url_for('admin.products') }}" class="btn btn-primary">Kelola Produk & Kategori (CRUD)</a>
+      <a href="{{ url_for('catalog.index') }}" class="btn btn-outline-secondary">Lihat Katalog Depan</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

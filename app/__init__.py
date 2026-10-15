@@ -22,19 +22,14 @@ def create_app(config_class=Config):
 
     from . import models  # noqa: F401
 
-    # Daftarkan blueprint auth
+    # Daftarkan blueprint auth, catalog, dan admin
     from .auth import bp as auth_bp
-    app.register_blueprint(auth_bp)
+    from .catalog import bp as catalog_bp
+    from .admin import bp as admin_bp
 
-    # Halaman utama sementara (nanti diganti Katalog Produk)
-    @app.route("/")
-    def index():
-        return render_template_string(
-            '{% extends "base.html" %}{% block content %}'
-            '<h3>Selamat Datang di Toko PBL 306!</h3>'
-            '<p>Fitur Register & Login sudah aktif.</p>'
-            '{% endblock %}'
-        )
+    app.register_blueprint(auth_bp)
+    app.register_blueprint(catalog_bp)
+    app.register_blueprint(admin_bp)
 
     # Perintah CLI untuk membuat akun admin pertama lewat terminal
     @app.cli.command("create-admin")

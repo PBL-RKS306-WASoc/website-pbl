@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% block title %}Katalog Produk - Toko PBL 306{% endblock %}
+
+{% block content %}
+<div class="row mb-4 align-items-center">
+  <div class="col-md-5">
+    <h3 class="mb-0">Katalog Produk</h3>
+  </div>
+  <div class="col-md-7">
+    <form method="get" class="row g-2">
+      <div class="col-sm-5">
+        <select name="category_id" class="form-select">
+          <option value="">-- Semua Kategori --</option>
+          {% for c in categories %}
+            <option value="{{ c.id }}" {% if selected_category == c.id %}selected{% endif %}>{{ c.name }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="col-sm-5">
+        <input type="text" name="q" value="{{ q }}" class="form-control" placeholder="Cari nama barang...">
+      </div>
+      <div class="col-sm-2">
+        <button type="submit" class="btn btn-dark w-100">Cari</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="row g-3">
+  {% for p in products %}
+  <div class="col-md-4">
+    <div class="card h-100 shadow-sm">
+      <div class="card-body d-flex flex-column">
+        <span class="badge bg-secondary align-self-start mb-2">{{ p.category.name }}</span>
+        <h5 class="card-title">{{ p.name }}</h5>
+        <h6 class="text-primary fw-bold mb-2">Rp {{ "{:,}".format(p.price_idr).replace(",", ".") }}</h6>
+        <p class="card-text text-muted small flex-grow-1">
+          {{ (p.description or "Tidak ada deskripsi.")[:100] }}
+        </p>
+        <div class="d-flex justify-content-between align-items-center mt-2">
+          <small class="text-muted">Stok: {{ p.stock }}</small>
+          <a href="{{ url_for('catalog.detail', product_id=p.id) }}" class="btn btn-sm btn-outline-primary">Lihat Detail</a>
+        </div>
+      </div>
+    </div>
+  </div>
+  {% else %}
+  <div class="col-12">
+    <div class="alert alert-secondary text-center py-4">
+      Belum ada produk yang ditemukan di katalog.
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% endblock %}
