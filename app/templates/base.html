@@ -18,6 +18,7 @@
           <a href="{{ url_for('cart.view') }}" class="btn btn-outline-info btn-sm">
             Keranjang <span class="badge bg-info text-dark">{{ cart_count }}</span>
           </a>
+          <a href="{{ url_for('orders.history') }}" class="btn btn-outline-light btn-sm">Pesanan</a>
           {% if current_user.is_admin %}
             <a href="/admin" class="btn btn-warning btn-sm">Dashboard Admin</a>
           {% endif %}
