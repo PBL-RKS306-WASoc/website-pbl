@@ -22,14 +22,16 @@ def create_app(config_class=Config):
 
     from . import models  # noqa: F401
 
-    # Daftarkan blueprint auth, catalog, dan admin
+    # Daftarkan blueprint auth, catalog, admin, dan cart
     from .auth import bp as auth_bp
     from .catalog import bp as catalog_bp
     from .admin import bp as admin_bp
+    from .cart import bp as cart_bp
 
     app.register_blueprint(auth_bp)
     app.register_blueprint(catalog_bp)
     app.register_blueprint(admin_bp)
+    app.register_blueprint(cart_bp)
 
     # Perintah CLI untuk membuat akun admin pertama lewat terminal
     @app.cli.command("create-admin")

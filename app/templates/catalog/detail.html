@@ -15,3 +15,12 @@
   </div>
 </div>
 {% endblock %}
+
+#snippet tambahan
+<form method="post" action="{{ url_for('cart.add') }}" class="d-flex gap-2">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <input type="hidden" name="product_id" value="{{ product.id }}">
+  <input type="hidden" name="price_idr" value="{{ product.price_idr }}">
+  <input type="number" name="quantity" value="1" min="1" max="{{ product.stock }}" class="form-control" style="width:90px">
+  <button class="btn btn-primary" {% if product.stock < 1 %}disabled{% endif %}>+ Keranjang</button>
+</form>

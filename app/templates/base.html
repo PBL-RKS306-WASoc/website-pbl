@@ -15,6 +15,9 @@
       <div class="d-flex align-items-center gap-2">
         {% if current_user.is_authenticated %}
           <span class="text-light me-2">Halo, <b>{{ current_user.username }}</b> ({{ current_user.role }})</span>
+          <a href="{{ url_for('cart.view') }}" class="btn btn-outline-info btn-sm">
+            Keranjang <span class="badge bg-info text-dark">{{ cart_count }}</span>
+          </a>
           {% if current_user.is_admin %}
             <a href="/admin" class="btn btn-warning btn-sm">Dashboard Admin</a>
           {% endif %}
