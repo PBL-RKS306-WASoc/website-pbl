@@ -11,16 +11,18 @@
     <hr>
     <h6>Deskripsi Barang:</h6>
     <p>{{ product.description or "Tidak ada deskripsi." }}</p>
-    <a href="{{ url_for('catalog.index') }}" class="btn btn-outline-secondary mt-2">&laquo; Kembali ke Katalog</a>
-  </div>
-</div>
-{% endblock %}
-
-#snippet tambahan
-<form method="post" action="{{ url_for('cart.add') }}" class="d-flex gap-2">
+    {% if product.stock > 0 %}
+<form method="post" action="{{ url_for('cart.add') }}" class="d-flex gap-2 mb-3">
   <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
   <input type="hidden" name="product_id" value="{{ product.id }}">
   <input type="hidden" name="price_idr" value="{{ product.price_idr }}">
   <input type="number" name="quantity" value="1" min="1" max="{{ product.stock }}" class="form-control" style="width:90px">
-  <button class="btn btn-primary" {% if product.stock < 1 %}disabled{% endif %}>+ Keranjang</button>
+  <button class="btn btn-primary">+ Keranjang</button>
 </form>
+{% else %}
+<div class="alert alert-warning">Stok habis.</div>
+{% endif %}
+    <a href="{{ url_for('catalog.index') }}" class="btn btn-outline-secondary mt-2">&laquo; Kembali ke Katalog</a>
+  </div>
+</div>
+{% endblock %}
