@@ -3,6 +3,7 @@ from datetime import datetime, timezone
 from argon2 import PasswordHasher
 from argon2.exceptions import VerifyMismatchError
 from flask_login import UserMixin
+from sqlalchemy import true
 
 from .extensions import db, login_manager
 
@@ -11,6 +12,11 @@ _ph = PasswordHasher()
 
 def utcnow():
     return datetime.now(timezone.utc)
+
+
+def _naive_utc(dt):
+    """DB (MySQL) mengembalikan datetime naive UTC; objek baru bisa aware."""
+    return dt.astimezone(timezone.utc).replace(tzinfo=None) if dt.tzinfo else dt
 
 
 class User(UserMixin, db.Model):
@@ -23,6 +29,10 @@ class User(UserMixin, db.Model):
     full_name = db.Column(db.String(100))
     avatar_filename = db.Column(db.String(100))
     created_at = db.Column(db.DateTime, default=utcnow)
+    # Status akun: dinonaktifkan admin (permanen) atau dikunci sementara (admin/SOC, ada TTL)
+    is_enabled = db.Column(db.Boolean, nullable=False, default=True, server_default=true())
+    locked_until = db.Column(db.DateTime)
+    lock_reason = db.Column(db.String(200))
 
     def set_password(self, password):
         self.password_hash = _ph.hash(password)
@@ -36,6 +46,14 @@ class User(UserMixin, db.Model):
     @property
     def is_admin(self):
         return self.role == "admin"
+
+    @property
+    def is_locked(self):
+        return bool(self.locked_until and _naive_utc(self.locked_until) > _naive_utc(utcnow()))
+
+    @property
+    def is_active(self):  # menimpa UserMixin.is_active, dibaca Flask-Login
+        return bool(self.is_enabled) and not self.is_locked
 
 
 @login_manager.user_loader

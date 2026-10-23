@@ -62,6 +62,20 @@ def login():
 
         # Jika user ada DAN password cocok
         if user and user.check_password(form.password.data):
+            # Akun dinonaktifkan/dikunci: tolak setelah password benar (tidak membocorkan status ke tebakan salah)
+            if not user.is_active:
+                log_event(
+                    "auth.login_blocked",
+                    level=logging.WARNING,
+                    user_id=user.id,
+                    username=user.username,
+                    reason="disabled" if not user.is_enabled else "locked",
+                    src_ip=request.remote_addr,
+                    method=request.method,
+                    path=request.path,
+                )
+                flash("Akun Anda dinonaktifkan atau dikunci sementara. Hubungi admin.", "danger")
+                return render_template("auth/login.html", form=form)
             login_user(user)
             log_event(
                 "auth.login_success",

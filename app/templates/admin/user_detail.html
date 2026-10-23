@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+{% block title %}Pengguna {{ u.username }} - Admin{% endblock %}
+{% block content %}
+<h3 class="mb-3">{{ u.username }}
+  <span class="badge {% if u.role == 'admin' %}bg-warning text-dark{% else %}bg-secondary{% endif %} fs-6">{{ u.role }}</span>
+  {% if not u.is_enabled %}<span class="badge bg-danger fs-6">Nonaktif</span>
+  {% elif u.is_locked %}<span class="badge bg-warning text-dark fs-6">Terkunci</span>
+  {% else %}<span class="badge bg-success fs-6">Aktif</span>{% endif %}</h3>
+
+<div class="row g-4">
+  <div class="col-lg-5">
+    <table class="table table-sm table-bordered bg-white">
+      <tr><th style="width:40%">Email</th><td>{{ u.email }}</td></tr>
+      <tr><th>Nama lengkap</th><td>{{ u.full_name or '-' }}</td></tr>
+      <tr><th>Terdaftar (UTC)</th><td>{{ u.created_at.strftime('%d/%m/%Y %H:%M') if u.created_at else '-' }}</td></tr>
+      <tr><th>Jumlah pesanan</th><td>{{ n_orders }}</td></tr>
+      <tr><th>Total belanja (paid)</th><td>{{ paid_total|rupiah }}</td></tr>
+      {% if u.is_locked %}<tr><th>Terkunci sampai (UTC)</th><td>{{ u.locked_until.strftime('%d/%m/%Y %H:%M') }}</td></tr>{% endif %}
+      {% if u.lock_reason %}<tr><th>Alasan</th><td>{{ u.lock_reason }}</td></tr>{% endif %}
+    </table>
+  </div>
+
+  <div class="col-lg-7">
+    {% if is_self %}
+      <div class="alert alert-info">Ini akun Anda sendiri. Role, status, dan kunci tidak dapat diubah dari sini.</div>
+    {% else %}
+    <div class="card mb-3"><div class="card-body">
+      <h6>Role</h6>
+      <form method="post" action="{{ url_for('admin_users.set_role', user_id=u.id) }}" class="d-flex gap-2" onsubmit="return confirm('Ubah role pengguna ini?')">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <select name="role" class="form-select" style="max-width:200px">
+          {% for r in ['customer', 'admin'] %}<option value="{{ r }}" {% if u.role == r %}selected{% endif %}>{{ r }}</option>{% endfor %}
+        </select>
+        <button class="btn btn-outline-primary">Simpan</button>
+      </form>
+    </div></div>
+
+    <div class="card mb-3"><div class="card-body">
+      <h6>Kunci sementara</h6>
+      {% if u.is_locked %}
+      <form method="post" action="{{ url_for('admin_users.unlock', user_id=u.id) }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <button class="btn btn-success">Buka kunci</button>
+      </form>
+      {% else %}
+      <form method="post" action="{{ url_for('admin_users.lock', user_id=u.id) }}" class="d-flex gap-2 flex-wrap">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <input type="number" name="minutes" value="60" min="1" max="10080" class="form-control" style="max-width:110px"> <span class="align-self-center">menit</span>
+        <input type="text" name="reason" maxlength="200" placeholder="Alasan (opsional)" class="form-control" style="max-width:260px">
+        <button class="btn btn-warning">Kunci</button>
+      </form>
+      {% endif %}
+    </div></div>
+
+    <div class="card mb-3"><div class="card-body">
+      <h6>Nonaktifkan akun (permanen sampai diaktifkan lagi)</h6>
+      {% if u.is_enabled %}
+      <form method="post" action="{{ url_for('admin_users.disable', user_id=u.id) }}" class="d-flex gap-2" onsubmit="return confirm('Nonaktifkan akun ini?')">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <input type="text" name="reason" maxlength="200" placeholder="Alasan (opsional)" class="form-control">
+        <button class="btn btn-danger">Nonaktifkan</button>
+      </form>
+      {% else %}
+      <form method="post" action="{{ url_for('admin_users.enable', user_id=u.id) }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <button class="btn btn-success">Aktifkan kembali</button>
+      </form>
+      {% endif %}
+    </div></div>
+    {% endif %}
+  </div>
+</div>
+<a href="{{ url_for('admin_users.index') }}" class="btn btn-outline-secondary mt-2">&laquo; Daftar Pengguna</a>
+{% endblock %}
