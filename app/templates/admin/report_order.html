@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block title %}Pesanan #{{ order.id }} - Admin{% endblock %}
+{% block content %}
+<h3 class="mb-3">Pesanan #{{ order.id }} <span class="badge bg-secondary fs-6">{{ order.status }}</span></h3>
+<p><b>Customer:</b> {{ customer.username }} ({{ customer.email }})<br>
+   <b>Dibuat:</b> {{ order.created_at.strftime('%d/%m/%Y %H:%M') }} UTC<br>
+   <b>Alamat:</b> {{ order.shipping_address }}</p>
+<table class="table table-bordered bg-white align-middle">
+  <thead class="table-light"><tr><th>Barang</th><th class="text-end">Harga</th><th class="text-end">Jumlah</th><th class="text-end">Subtotal</th></tr></thead>
+  <tbody>
+  {% for it in order.items %}
+    <tr><td>{{ it.product.name }}</td><td class="text-end">{{ it.unit_price_idr|rupiah }}</td>
+        <td class="text-end">{{ it.quantity }}</td><td class="text-end">{{ (it.unit_price_idr * it.quantity)|rupiah }}</td></tr>
+  {% endfor %}
+  </tbody>
+  <tfoot><tr><th colspan="3" class="text-end">Total</th><th class="text-end">{{ order.total_idr|rupiah }}</th></tr></tfoot>
+</table>
+
+{% if order.payment %}
+<p>Pembayaran: <span class="badge bg-info text-dark">{{ order.payment.status }}</span>
+  <a href="{{ url_for('admin_payments.detail', order_id=order.id) }}" class="ms-2">Buka verifikasi</a></p>
+{% endif %}
+
+{% if cancellable %}
+<form method="post" action="{{ url_for('admin_reports.cancel', order_id=order.id) }}" class="d-flex gap-2 mb-3" onsubmit="return confirm('Batalkan pesanan ini dan kembalikan stok?')">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <input type="text" name="reason" maxlength="200" class="form-control" placeholder="Alasan pembatalan (opsional)">
+  <button class="btn btn-danger text-nowrap">Batalkan Pesanan</button>
+</form>
+{% elif order.status == 'paid' %}
+<div class="alert alert-secondary">Pesanan yang sudah dibayar tidak dapat dibatalkan dari sini.</div>
+{% endif %}
+<a href="{{ url_for('admin_reports.index') }}" class="btn btn-outline-secondary">&laquo; Laporan</a>
+{% endblock %}

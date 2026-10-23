@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% block title %}Laporan Transaksi - Toko PBL 306{% endblock %}
+{% block content %}
+<h3 class="mb-3">Laporan Transaksi</h3>
+
+<form method="get" class="row g-2 align-items-end mb-3">
+  <div class="col-auto"><label class="form-label small mb-0">Dari (UTC)</label>
+    <input type="date" name="date_from" value="{{ f.date_from }}" class="form-control form-control-sm"></div>
+  <div class="col-auto"><label class="form-label small mb-0">Sampai (UTC)</label>
+    <input type="date" name="date_to" value="{{ f.date_to }}" class="form-control form-control-sm"></div>
+  <div class="col-auto"><label class="form-label small mb-0">Status</label>
+    <select name="status" class="form-select form-select-sm">
+      <option value="all">semua</option>
+      {% for s in statuses %}<option value="{{ s }}" {% if f.status == s %}selected{% endif %}>{{ s }}</option>{% endfor %}
+    </select></div>
+  <div class="col-auto d-flex gap-2">
+    <button class="btn btn-sm btn-primary">Terapkan</button>
+    <a href="{{ url_for('admin_reports.export', **args) }}" class="btn btn-sm btn-outline-success">Export CSV</a>
+  </div>
+</form>
+
+<div class="row g-2 mb-3">
+  <div class="col-6 col-md-3"><div class="border rounded bg-white p-2"><div class="small text-muted">Total pesanan</div><div class="fs-5 fw-bold">{{ summary.total }}</div></div></div>
+  <div class="col-6 col-md-3"><div class="border rounded bg-white p-2 border-success"><div class="small text-muted">Omzet (paid)</div><div class="fs-5 fw-bold">{{ summary.omzet|rupiah }}</div></div></div>
+  {% for s, v in summary.by_status.items() %}
+    <div class="col-6 col-md-3"><div class="border rounded bg-white p-2"><div class="small text-muted">{{ s }}</div><div class="fs-6">{{ v[0] }} pesanan</div></div></div>
+  {% endfor %}
+</div>
+
+{% if pag.items %}
+<div class="table-responsive">
+  <table class="table table-bordered align-middle bg-white">
+    <thead class="table-light"><tr><th>#</th><th>Tanggal (UTC)</th><th>Customer</th><th class="text-end">Barang</th><th class="text-end">Total</th><th>Pesanan</th><th>Bayar</th><th></th></tr></thead>
+    <tbody>
+    {% for o, u, pay, qty in pag.items %}
+      <tr>
+        <td>{{ o.id }}</td>
+        <td>{{ o.created_at.strftime('%d/%m/%Y %H:%M') }}</td>
+        <td>{{ u.username }}</td>
+        <td class="text-end">{{ qty }}</td>
+        <td class="text-end">{{ o.total_idr|rupiah }}</td>
+        <td><span class="badge bg-secondary">{{ o.status }}</span></td>
+        <td>{{ pay or '-' }}</td>
+        <td><a class="btn btn-sm btn-outline-primary" href="{{ url_for('admin_reports.order_detail', order_id=o.id) }}">Detail</a></td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+</div>
+<nav class="d-flex justify-content-between align-items-center">
+  <span class="small text-muted">Halaman {{ pag.page }} dari {{ pag.pages or 1 }} ({{ pag.total }} pesanan)</span>
+  <div class="btn-group">
+    {% if pag.has_prev %}<a class="btn btn-sm btn-outline-secondary" href="{{ url_for('admin_reports.index', page=pag.prev_num, **args) }}">&laquo; Sebelumnya</a>{% endif %}
+    {% if pag.has_next %}<a class="btn btn-sm btn-outline-secondary" href="{{ url_for('admin_reports.index', page=pag.next_num, **args) }}">Berikutnya &raquo;</a>{% endif %}
+  </div>
+</nav>
+{% else %}
+<div class="alert alert-info">Tidak ada pesanan untuk filter ini.</div>
+{% endif %}
+{% endblock %}

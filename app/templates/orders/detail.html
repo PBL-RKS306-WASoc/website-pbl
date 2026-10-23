@@ -24,7 +24,9 @@
 
 <div class="card mb-3"><div class="card-body">
   <h6>Bukti Pembayaran</h6>
-  {% if order.payment and order.payment.status == 'rejected' %}
+  {% if order.status == 'cancelled' %}
+    <div class="alert alert-secondary">Pesanan ini telah dibatalkan.</div>
+  {% elif order.payment and order.payment.status == 'rejected' %}
     <div class="alert alert-danger">Bukti pembayaran ditolak admin. Silakan unggah ulang.</div>
   {% elif order.status == 'paid' %}
     <div class="alert alert-success">Pembayaran telah disetujui.</div>

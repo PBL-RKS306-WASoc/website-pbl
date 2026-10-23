@@ -22,6 +22,7 @@
           {% if current_user.is_admin %}
             <a href="/admin" class="btn btn-warning btn-sm">Dashboard Admin</a>
             <a href="{{ url_for('admin_payments.index') }}" class="btn btn-outline-warning btn-sm">Pembayaran{% if waiting_payments_count %} <span class="badge bg-warning text-dark">{{ waiting_payments_count }}</span>{% endif %}</a>
+            <a href="{{ url_for('admin_reports.index') }}" class="btn btn-outline-warning btn-sm">Laporan</a>
           {% endif %}
           <form method="post" action="{{ url_for('auth.logout') }}" class="d-inline">
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
