@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block title %}Verifikasi Pembayaran - Toko PBL 306{% endblock %}
+{% block content %}
+<h3 class="mb-3">Verifikasi Pembayaran</h3>
+<ul class="nav nav-pills mb-3">
+  {% for s in statuses %}
+    <li class="nav-item"><a class="nav-link {% if status == s %}active{% endif %}" href="{{ url_for('admin_payments.index', status=s) }}">{{ s }}</a></li>
+  {% endfor %}
+  <li class="nav-item"><a class="nav-link {% if status == 'all' %}active{% endif %}" href="{{ url_for('admin_payments.index', status='all') }}">semua</a></li>
+</ul>
+{% if rows %}
+<div class="table-responsive">
+  <table class="table table-bordered align-middle bg-white">
+    <thead class="table-light"><tr><th>Pesanan</th><th>Customer</th><th class="text-end">Total</th><th>Diunggah (UTC)</th><th>Status</th><th></th></tr></thead>
+    <tbody>
+    {% for pay, order, user in rows %}
+      <tr>
+        <td>#{{ order.id }}</td>
+        <td>{{ user.username }}</td>
+        <td class="text-end">{{ order.total_idr|rupiah }}</td>
+        <td>{{ pay.uploaded_at.strftime('%d/%m/%Y %H:%M') }}</td>
+        <td><span class="badge bg-secondary">{{ pay.status }}</span></td>
+        <td><a class="btn btn-sm btn-primary" href="{{ url_for('admin_payments.detail', order_id=order.id) }}">Tinjau</a></td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% else %}
+<div class="alert alert-info">Tidak ada pembayaran dengan status ini.</div>
+{% endif %}
+{% endblock %}
