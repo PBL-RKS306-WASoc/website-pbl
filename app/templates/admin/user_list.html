@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block title %}Manajemen Pengguna - Toko PBL 306{% endblock %}
+{% block content %}
+<h3 class="mb-3">Manajemen Pengguna</h3>
+<form method="get" class="row g-2 align-items-end mb-3">
+  <div class="col-auto"><label class="form-label small mb-0">Cari</label>
+    <input type="text" name="q" value="{{ q }}" maxlength="50" placeholder="username / email" class="form-control form-control-sm"></div>
+  <div class="col-auto"><label class="form-label small mb-0">Role</label>
+    <select name="role" class="form-select form-select-sm">
+      <option value="all">semua</option>
+      {% for r in roles %}<option value="{{ r }}" {% if role == r %}selected{% endif %}>{{ r }}</option>{% endfor %}
+    </select></div>
+  <div class="col-auto"><button class="btn btn-sm btn-primary">Terapkan</button></div>
+</form>
+<div class="table-responsive">
+  <table class="table table-bordered align-middle bg-white">
+    <thead class="table-light"><tr><th>#</th><th>Username</th><th>Email</th><th>Role</th><th>Status</th><th>Terdaftar (UTC)</th><th></th></tr></thead>
+    <tbody>
+    {% for u in pag.items %}
+      <tr>
+        <td>{{ u.id }}</td><td>{{ u.username }}</td><td>{{ u.email }}</td>
+        <td><span class="badge {% if u.role == 'admin' %}bg-warning text-dark{% else %}bg-secondary{% endif %}">{{ u.role }}</span></td>
+        <td>{% if not u.is_enabled %}<span class="badge bg-danger">Nonaktif</span>
+            {% elif u.is_locked %}<span class="badge bg-warning text-dark">Terkunci</span>
+            {% else %}<span class="badge bg-success">Aktif</span>{% endif %}</td>
+        <td>{{ u.created_at.strftime('%d/%m/%Y %H:%M') if u.created_at else '-' }}</td>
+        <td><a class="btn btn-sm btn-outline-primary" href="{{ url_for('admin_users.detail', user_id=u.id) }}">Kelola</a></td>
+      </tr>
+    {% else %}
+      <tr><td colspan="7" class="text-center text-muted">Tidak ada pengguna.</td></tr>
+    {% endfor %}
+    </tbody>
+  </table>
+</div>
+<nav class="d-flex justify-content-between align-items-center">
+  <span class="small text-muted">Halaman {{ pag.page }} dari {{ pag.pages or 1 }} ({{ pag.total }} pengguna)</span>
+  <div class="btn-group">
+    {% if pag.has_prev %}<a class="btn btn-sm btn-outline-secondary" href="{{ url_for('admin_users.index', page=pag.prev_num, **args) }}">&laquo;</a>{% endif %}
+    {% if pag.has_next %}<a class="btn btn-sm btn-outline-secondary" href="{{ url_for('admin_users.index', page=pag.next_num, **args) }}">&raquo;</a>{% endif %}
+  </div>
+</nav>
+{% endblock %}
