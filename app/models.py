@@ -83,6 +83,10 @@ class Product(db.Model):
 
 class Review(db.Model):
     __tablename__ = "reviews"
+    __table_args__ = (
+        db.UniqueConstraint("product_id", "user_id", name="uq_reviews_product_user"),
+        db.CheckConstraint("rating >= 1 AND rating <= 5", name="ck_reviews_rating_range"),
+    )
     id = db.Column(db.Integer, primary_key=True)
     product_id = db.Column(db.Integer, db.ForeignKey("products.id"), nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
