@@ -19,3 +19,9 @@ class LoginForm(FlaskForm):
     username = StringField("Username", validators=[DataRequired()])
     password = PasswordField("Password", validators=[DataRequired()])
     submit = SubmitField("Login")
+
+
+class ProfileForm(FlaskForm):
+    email = StringField("Email", validators=[DataRequired(), Email(), Length(max=120)])
+    full_name = StringField("Nama Lengkap", validators=[DataRequired(), Length(max=100)])
+    submit = SubmitField("Simpan Perubahan")

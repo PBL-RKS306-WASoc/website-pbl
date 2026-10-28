@@ -19,6 +19,7 @@
             Keranjang <span class="badge bg-info text-dark">{{ cart_count }}</span>
           </a>
           <a href="{{ url_for('orders.history') }}" class="btn btn-outline-light btn-sm">Pesanan</a>
+          <a href="{{ url_for('auth.profile') }}" class="btn btn-outline-light btn-sm">Profil</a>
           {% if current_user.is_admin %}
             <a href="/admin" class="btn btn-warning btn-sm">Dashboard Admin</a>
             <a href="{{ url_for('admin_payments.index') }}" class="btn btn-outline-warning btn-sm">Pembayaran{% if waiting_payments_count %} <span class="badge bg-warning text-dark">{{ waiting_payments_count }}</span>{% endif %}</a>

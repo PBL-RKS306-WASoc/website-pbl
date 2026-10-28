@@ -1,11 +1,12 @@
 import logging
+
 from flask import Blueprint, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required, login_user, logout_user
 
 from ..extensions import db
 from ..logging_setup import log_event
 from ..models import User
-from .forms import LoginForm, RegisterForm
+from .forms import LoginForm, ProfileForm, RegisterForm
 
 bp = Blueprint("auth", __name__, url_prefix="/auth")
 
@@ -116,3 +117,35 @@ def logout():
     logout_user()
     flash("Anda telah logout.", "info")
     return redirect(url_for("auth.login"))
+
+
+@bp.route("/profile", methods=["GET", "POST"])
+@login_required
+def profile():
+    form = ProfileForm()
+    if form.validate_on_submit():
+        existing_user = User.query.filter(
+            User.email == form.email.data,
+            User.id != current_user.id,
+        ).first()
+        if existing_user:
+            form.email.errors.append("Email sudah digunakan akun lain.")
+        else:
+            current_user.email = form.email.data
+            current_user.full_name = form.full_name.data
+            db.session.commit()
+            log_event(
+                "profile.updated",
+                user_id=current_user.id,
+                username=current_user.username,
+                src_ip=request.remote_addr,
+                method=request.method,
+                path=request.path,
+            )
+            flash("Profil berhasil diperbarui.", "success")
+            return redirect(url_for("auth.profile"))
+    elif request.method == "GET":
+        form.email.data = current_user.email
+        form.full_name.data = current_user.full_name
+
+    return render_template("auth/profile.html", form=form)

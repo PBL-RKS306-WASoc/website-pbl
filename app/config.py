@@ -19,3 +19,17 @@ class Config:
     MAX_CONTENT_LENGTH = 2 * 1024 * 1024  # 2 MB
     UPLOAD_FOLDER = os.environ.get("UPLOAD_FOLDER", "uploads")
     LOG_FILE = os.environ.get("LOG_FILE", "logs/app.log")
+
+    #tambahan
+        # API internal untuk Active Response SOC (pembatasan akun). Kosong = endpoint nonaktif.
+    SOC_API_TOKEN = os.environ.get("SOC_API_TOKEN", "")
+    SOC_API_ALLOWED_IPS = [ip.strip() for ip in
+                           os.environ.get("SOC_API_ALLOWED_IPS", "127.0.0.1").split(",") if ip.strip()]
+    SOC_API_DEFAULT_MINUTES = int(os.environ.get("SOC_API_DEFAULT_MINUTES", "30"))
+    SOC_API_MAX_MINUTES = int(os.environ.get("SOC_API_MAX_MINUTES", "1440"))
+    # API internal untuk Active Response SOC (pembatasan akun). Kosong = endpoint nonaktif.
+    SOC_API_TOKEN = os.environ.get("SOC_API_TOKEN", "")
+    SOC_API_ALLOWED_IPS = [ip.strip() for ip in
+                           os.environ.get("SOC_API_ALLOWED_IPS", "127.0.0.1").split(",") if ip.strip()]
+    SOC_API_DEFAULT_MINUTES = int(os.environ.get("SOC_API_DEFAULT_MINUTES", "30"))
+    SOC_API_MAX_MINUTES = int(os.environ.get("SOC_API_MAX_MINUTES", "1440"))
