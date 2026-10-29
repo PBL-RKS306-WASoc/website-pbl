@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block title %}Profil - Toko PBL 306{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-md-6">
+    <div class="card shadow-sm">
+      <div class="card-body p-4">
+        <h4 class="mb-3">Profil Saya</h4>
+        {% if current_user.avatar_filename %}
+          <img src="{{ url_for('auth.avatar') }}" alt="Avatar {{ current_user.username }}"
+               class="rounded-circle mb-3" width="120" height="120" style="object-fit: cover">
+        {% endif %}
+        <form method="post" enctype="multipart/form-data">
+          {{ form.hidden_tag() }}
+          <div class="mb-3">
+            <label class="form-label" for="username">Username</label>
+            <input id="username" class="form-control" value="{{ current_user.username }}" readonly>
+          </div>
+          <div class="mb-3">
+            {{ form.full_name.label(class="form-label") }}
+            {{ form.full_name(class="form-control") }}
+            {% for err in form.full_name.errors %}<small class="text-danger">{{ err }}</small>{% endfor %}
+          </div>
+          <div class="mb-3">
+            {{ form.email.label(class="form-label") }}
+            {{ form.email(class="form-control") }}
+            {% for err in form.email.errors %}<small class="text-danger">{{ err }}</small>{% endfor %}
+          </div>
+          <div class="mb-3">
+            {{ form.avatar.label(class="form-label") }}
+            {{ form.avatar(class="form-control", accept=".jpg,.jpeg,.png,image/jpeg,image/png") }}
+            <div class="form-text">JPG atau PNG, maksimal 2 MB dan 4096 x 4096 piksel.</div>
+            {% for err in form.avatar.errors %}<small class="text-danger">{{ err }}</small>{% endfor %}
+          </div>
+          {{ form.submit(class="btn btn-primary") }}
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
