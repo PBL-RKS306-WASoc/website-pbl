@@ -6,6 +6,11 @@
   <div class="card-body p-4">
     <span class="badge bg-secondary mb-2">{{ product.category.name }}</span>
     <h3>{{ product.name }}</h3>
+    {% if average_rating %}
+    <p class="mb-2">Rating: <strong>{{ "%.1f"|format(average_rating) }}/5</strong> ({{ reviews|length }} ulasan)</p>
+    {% else %}
+    <p class="text-muted mb-2">Belum ada ulasan.</p>
+    {% endif %}
     <h4 class="text-primary fw-bold my-3">Rp {{ "{:,}".format(product.price_idr).replace(",", ".") }}</h4>
     <p class="text-muted">Stok tersedia: <strong>{{ product.stock }}</strong></p>
     <hr>
@@ -25,4 +30,46 @@
     <a href="{{ url_for('catalog.index') }}" class="btn btn-outline-secondary mt-2">&laquo; Kembali ke Katalog</a>
   </div>
 </div>
+
+<section id="reviews" class="card shadow-sm mb-4">
+  <div class="card-body p-4">
+    <h4 class="mb-3">Ulasan Produk</h4>
+
+    {% if can_review %}
+    <form method="post" action="{{ url_for('catalog.create_review', product_id=product.id) }}" class="mb-4">
+      {{ review_form.hidden_tag() }}
+      <div class="mb-3">
+        {{ review_form.rating.label(class="form-label") }}
+        {{ review_form.rating(class="form-select", min="1", max="5", step="1") }}
+        {% for err in review_form.rating.errors %}<small class="text-danger">{{ err }}</small>{% endfor %}
+      </div>
+      <div class="mb-3">
+        {{ review_form.comment.label(class="form-label") }}
+        {{ review_form.comment(class="form-control", rows="3", maxlength="1000") }}
+        {% for err in review_form.comment.errors %}<small class="text-danger">{{ err }}</small>{% endfor %}
+      </div>
+      {{ review_form.submit(class="btn btn-primary") }}
+    </form>
+    {% elif user_review %}
+    <div class="alert alert-info">Anda sudah memberikan ulasan untuk produk ini.</div>
+    {% elif current_user.is_authenticated and not current_user.is_admin %}
+    <div class="alert alert-secondary">Ulasan tersedia setelah pesanan Anda untuk produk ini dibayar.</div>
+    {% elif not current_user.is_authenticated %}
+    <p><a href="{{ url_for('auth.login') }}">Login</a> dan selesaikan pembelian untuk memberikan ulasan.</p>
+    {% endif %}
+
+    {% for review in reviews %}
+    <article class="border-top py-3">
+      <div class="d-flex justify-content-between gap-3">
+        <strong>{{ review.user.username }}</strong>
+        <span class="text-nowrap">{{ review.rating }}/5</span>
+      </div>
+      {% if review.comment %}<p class="mb-1 mt-2">{{ review.comment }}</p>{% endif %}
+      <small class="text-muted">{{ review.created_at.strftime('%d/%m/%Y %H:%M') if review.created_at else '' }}</small>
+    </article>
+    {% else %}
+    <p class="text-muted mb-0">Belum ada ulasan untuk produk ini.</p>
+    {% endfor %}
+  </div>
+</section>
 {% endblock %}
