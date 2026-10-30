@@ -111,10 +111,15 @@ class CartItem(db.Model):
 
 class Order(db.Model):
     __tablename__ = "orders"
+    __table_args__ = (
+        db.UniqueConstraint("midtrans_order_id", name="uq_orders_midtrans_order_id"),
+    )
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
     total_idr = db.Column(db.Integer, nullable=False)
     status = db.Column(db.String(30), nullable=False, default="pending_payment")
+    payment_method = db.Column(db.String(20))
+    midtrans_order_id = db.Column(db.String(64))
     shipping_address = db.Column(db.Text, nullable=False)
     created_at = db.Column(db.DateTime, default=utcnow)
 

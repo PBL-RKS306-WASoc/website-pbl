@@ -19,3 +19,6 @@ class Config:
     MAX_CONTENT_LENGTH = 2 * 1024 * 1024  # 2 MB
     UPLOAD_FOLDER = os.environ.get("UPLOAD_FOLDER", "uploads")
     LOG_FILE = os.environ.get("LOG_FILE", "logs/app.log")
+    MIDTRANS_SERVER_KEY = os.environ.get("MIDTRANS_SERVER_KEY", "")
+    MIDTRANS_CLIENT_KEY = os.environ.get("MIDTRANS_CLIENT_KEY", "")
+    MIDTRANS_IS_PRODUCTION = os.environ.get("MIDTRANS_IS_PRODUCTION", "0") == "1"

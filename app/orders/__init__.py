@@ -177,7 +177,13 @@ def history():
 def detail(order_id):
     order = _order_or_404(order_id, "view")
     return render_template("orders/detail.html", order=order,
-                           form=PaymentProofForm(), can_upload=_can_upload(order))
+                           form=PaymentProofForm(), can_upload=_can_upload(order),
+                           midtrans_enabled=bool(current_app.config.get("MIDTRANS_SERVER_KEY")
+                                                 and current_app.config.get("MIDTRANS_CLIENT_KEY")),
+                           midtrans_client_key=current_app.config.get("MIDTRANS_CLIENT_KEY", ""),
+                           snap_js_url=("https://app.midtrans.com/snap/snap.js"
+                                        if current_app.config.get("MIDTRANS_IS_PRODUCTION")
+                                        else "https://app.sandbox.midtrans.com/snap/snap.js"))
 
 
 # ---------- upload bukti bayar ----------
@@ -237,6 +243,7 @@ def pay(order_id):
     else:
         db.session.add(Payment(order_id=order.id, proof_filename=stored))
     order.status = "waiting_verification"
+    order.payment_method = "manual"
     db.session.commit()
 
     log_event("upload.proof_saved", order_id=order.id, stored_name=stored,
