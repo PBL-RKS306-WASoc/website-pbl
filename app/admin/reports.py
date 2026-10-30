@@ -105,10 +105,11 @@ def export():
     buf = io.StringIO()
     w = csv.writer(buf)
     w.writerow(["order_id", "created_at_utc", "username", "email", "total_idr",
-                "total_qty", "order_status", "payment_status"])
+                "total_qty", "order_status", "payment_status", "payment_method"])
     for o, u, pay_status, qty in rows:
         w.writerow([o.id, o.created_at.strftime("%Y-%m-%d %H:%M:%S"), _csv_safe(u.username),
-                    _csv_safe(u.email), o.total_idr, int(qty), o.status, pay_status or ""])
+                    _csv_safe(u.email), o.total_idr, int(qty), o.status, pay_status or "",
+                    o.payment_method or ("manual" if pay_status else "")])
     log_event("admin.report_exported", row_count=len(rows), filter_status=f["status"],
               date_from=f["date_from"], date_to=f["date_to"], **_ctx())
     name = f"laporan-transaksi-{utcnow().strftime('%Y%m%d-%H%M')}.csv"

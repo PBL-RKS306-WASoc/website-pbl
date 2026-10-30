@@ -21,16 +21,17 @@ def create_app(config_class=Config):
     csrf.init_app(app)
 
     from . import models  # noqa: F401
-
-    # Daftarkan blueprint auth, catalog, admin, cart, orders, verifikasi pembayaran, laporan, pengguna admin, dan API SOC
-    from .auth import bp as auth_bp
-    from .catalog import bp as catalog_bp
     from .admin import bp as admin_bp
-    from .cart import bp as cart_bp
-    from .orders import bp as orders_bp
     from .admin.payments import bp as admin_payments_bp
     from .admin.reports import bp as admin_reports_bp
     from .admin.users import bp as admin_users_bp
+
+    # Daftarkan blueprint auth, catalog, admin, cart, orders, verifikasi pembayaran, laporan, pengguna admin, dan API SOC
+    from .auth import bp as auth_bp
+    from .cart import bp as cart_bp
+    from .catalog import bp as catalog_bp
+    from .midtrans import bp as midtrans_bp
+    from .orders import bp as orders_bp
     from .soc_api import bp as soc_api_bp
 
     app.register_blueprint(auth_bp)
@@ -38,6 +39,7 @@ def create_app(config_class=Config):
     app.register_blueprint(admin_bp)
     app.register_blueprint(cart_bp)
     app.register_blueprint(orders_bp)
+    app.register_blueprint(midtrans_bp)
     app.register_blueprint(admin_payments_bp)
     app.register_blueprint(admin_reports_bp)
     app.register_blueprint(admin_users_bp)

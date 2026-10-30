@@ -30,7 +30,7 @@
 {% if pag.items %}
 <div class="table-responsive">
   <table class="table table-bordered align-middle bg-white">
-    <thead class="table-light"><tr><th>#</th><th>Tanggal (UTC)</th><th>Customer</th><th class="text-end">Barang</th><th class="text-end">Total</th><th>Pesanan</th><th>Bayar</th><th></th></tr></thead>
+    <thead class="table-light"><tr><th>#</th><th>Tanggal (UTC)</th><th>Customer</th><th class="text-end">Barang</th><th class="text-end">Total</th><th>Pesanan</th><th>Bayar</th><th>Metode</th><th></th></tr></thead>
     <tbody>
     {% for o, u, pay, qty in pag.items %}
       <tr>
@@ -41,6 +41,7 @@
         <td class="text-end">{{ o.total_idr|rupiah }}</td>
         <td><span class="badge bg-secondary">{{ o.status }}</span></td>
         <td>{{ pay or '-' }}</td>
+        <td>{{ o.payment_method or ('manual' if pay else '-') }}</td>
         <td><a class="btn btn-sm btn-outline-primary" href="{{ url_for('admin_reports.order_detail', order_id=o.id) }}">Detail</a></td>
       </tr>
     {% endfor %}

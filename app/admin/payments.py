@@ -115,6 +115,8 @@ def _review(order_id, decision):
     payment.reviewed_at = utcnow()
     # Ditolak -> pesanan kembali menunggu pembayaran agar customer bisa unggah ulang
     order.status = "paid" if approve else "pending_payment"
+    if approve and not order.payment_method:
+        order.payment_method = "manual"
     db.session.commit()
 
     fields = dict(order_id=order_id, customer_id=order.user_id, total_idr=order.total_idr,

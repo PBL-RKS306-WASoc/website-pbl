@@ -5,7 +5,7 @@
 {% if orders %}
 <div class="table-responsive">
   <table class="table table-bordered align-middle bg-white">
-    <thead class="table-light"><tr><th>#</th><th>Tanggal (UTC)</th><th class="text-end">Total</th><th>Status</th><th></th></tr></thead>
+    <thead class="table-light"><tr><th>#</th><th>Tanggal (UTC)</th><th class="text-end">Total</th><th>Status</th><th>Metode pembayaran</th><th></th></tr></thead>
     <tbody>
     {% for o in orders %}
       <tr>
@@ -13,6 +13,7 @@
         <td>{{ o.created_at.strftime('%d/%m/%Y %H:%M') }}</td>
         <td class="text-end">{{ o.total_idr|rupiah }}</td>
         <td><span class="badge bg-secondary">{{ o.status }}</span></td>
+        <td>{{ o.payment_method or ('manual' if o.payment else '-') }}</td>
         <td><a href="{{ url_for('orders.detail', order_id=o.id) }}" class="btn btn-sm btn-outline-primary">Detail</a></td>
       </tr>
     {% endfor %}

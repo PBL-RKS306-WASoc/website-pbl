@@ -28,3 +28,6 @@ class Config:
     )
     SOC_API_DEFAULT_MINUTES = int(os.environ.get("SOC_API_DEFAULT_MINUTES", "30"))
     SOC_API_MAX_MINUTES = int(os.environ.get("SOC_API_MAX_MINUTES", "1440"))
+    MIDTRANS_SERVER_KEY = os.environ.get("MIDTRANS_SERVER_KEY", "")
+    MIDTRANS_CLIENT_KEY = os.environ.get("MIDTRANS_CLIENT_KEY", "")
+    MIDTRANS_IS_PRODUCTION = os.environ.get("MIDTRANS_IS_PRODUCTION", "0") == "1"

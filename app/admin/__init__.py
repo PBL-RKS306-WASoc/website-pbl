@@ -1,7 +1,9 @@
 import logging
 from functools import wraps
+
 from flask import Blueprint, abort, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
+from sqlalchemy import or_
 
 from ..extensions import db
 from ..logging_setup import log_event
@@ -40,11 +42,20 @@ def dashboard():
     total_products = Product.query.count()
     total_users = User.query.count()
     total_orders = Order.query.count()
+    paid_midtrans_orders = Order.query.filter_by(
+        status="paid", payment_method="midtrans"
+    ).count()
+    paid_manual_orders = Order.query.filter(
+        Order.status == "paid",
+        or_(Order.payment_method == "manual", Order.payment_method.is_(None)),
+    ).count()
     return render_template(
         "admin/dashboard.html",
         total_products=total_products,
         total_users=total_users,
         total_orders=total_orders,
+        paid_manual_orders=paid_manual_orders,
+        paid_midtrans_orders=paid_midtrans_orders,
     )
 
 

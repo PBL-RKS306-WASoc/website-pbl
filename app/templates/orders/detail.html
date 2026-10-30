@@ -2,6 +2,7 @@
 {% block title %}Pesanan #{{ order.id }} - Toko PBL 306{% endblock %}
 {% block content %}
 <h3 class="mb-3">Pesanan #{{ order.id }} <span class="badge bg-secondary fs-6">{{ order.status }}</span></h3>
+<p><b>Metode pembayaran:</b> {{ order.payment_method or ('manual' if order.payment else '-') }}</p>
 
 <div class="table-responsive">
   <table class="table table-bordered align-middle bg-white">
@@ -26,10 +27,10 @@
   <h6>Bukti Pembayaran</h6>
   {% if order.status == 'cancelled' %}
     <div class="alert alert-secondary">Pesanan ini telah dibatalkan.</div>
-  {% elif order.payment and order.payment.status == 'rejected' %}
-    <div class="alert alert-danger">Bukti pembayaran ditolak admin. Silakan unggah ulang.</div>
   {% elif order.status == 'paid' %}
     <div class="alert alert-success">Pembayaran telah disetujui.</div>
+  {% elif order.payment and order.payment.status == 'rejected' %}
+    <div class="alert alert-danger">Bukti pembayaran ditolak admin. Silakan unggah ulang.</div>
   {% endif %}
   {% if order.payment %}
     <p class="mb-2">Status: <span class="badge bg-info text-dark">{{ order.payment.status }}</span>
@@ -42,6 +43,45 @@
       <button class="btn btn-primary">Unggah</button>
     </form>
     <div class="form-text">JPG/PNG, maksimal 2 MB.</div>
+    {% if midtrans_enabled %}
+      <button id="midtrans-pay" class="btn btn-success mt-3"
+              data-url="{{ url_for('midtrans.pay', order_id=order.id) }}"
+              data-csrf="{{ csrf_token() }}">
+        Bayar dengan Midtrans
+      </button>
+      <div id="midtrans-error" class="text-danger mt-2" role="alert"></div>
+      <script src="{{ snap_js_url }}?client-key={{ midtrans_client_key }}"></script>
+      <script>
+        document.getElementById("midtrans-pay").addEventListener("click", async function () {
+          const button = this;
+          button.disabled = true;
+          document.getElementById("midtrans-error").textContent = "";
+          try {
+            const response = await fetch(button.dataset.url, {
+              method: "POST",
+              headers: { "X-CSRFToken": button.dataset.csrf }
+            });
+            const result = await response.json();
+            if (!response.ok || !result.token) {
+              throw new Error(result.error || "Pembayaran Midtrans tidak tersedia.");
+            }
+            window.snap.pay(result.token, {
+              onSuccess: function () { window.location.reload(); },
+              onPending: function () { window.location.reload(); },
+              onError: function () {
+                document.getElementById("midtrans-error").textContent =
+                  "Pembayaran gagal. Silakan coba lagi.";
+                button.disabled = false;
+              },
+              onClose: function () { button.disabled = false; }
+            });
+          } catch (error) {
+            document.getElementById("midtrans-error").textContent = error.message;
+            button.disabled = false;
+          }
+        });
+      </script>
+    {% endif %}
   {% elif not order.payment %}
     <p class="text-muted mb-0">Unggah tidak tersedia untuk status ini.</p>
   {% endif %}
