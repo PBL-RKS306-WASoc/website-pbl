@@ -1,16 +1,46 @@
 import logging
+import os
+import uuid
 from functools import wraps
 
-from flask import Blueprint, abort, flash, redirect, render_template, request, url_for
+from flask import (
+    Blueprint,
+    abort,
+    current_app,
+    flash,
+    redirect,
+    render_template,
+    request,
+    url_for,
+)
 from flask_login import current_user, login_required
 from sqlalchemy import or_
+from sqlalchemy.exc import SQLAlchemyError
 
 from ..extensions import db
 from ..logging_setup import log_event
-from ..models import Category, Order, Product, User
+from ..models import CartItem, Category, Order, OrderItem, Product, Review, User
+from ..product_images import process_product_image, product_image_directory
 from .forms import CategoryForm, ProductForm
 
 bp = Blueprint("admin", __name__, url_prefix="/admin")
+
+
+def _save_product_image(filename, content):
+    os.makedirs(product_image_directory(), exist_ok=True)
+    with open(os.path.join(product_image_directory(), filename), "wb") as file:
+        file.write(content)
+
+
+def _remove_product_image(filename):
+    if not filename:
+        return
+    try:
+        os.remove(os.path.join(product_image_directory(), os.path.basename(filename)))
+    except FileNotFoundError:
+        pass
+    except OSError:
+        current_app.logger.exception("Gagal menghapus foto produk lama.")
 
 
 # Penjaga pintu khusus Admin (Otorisasi Peran)
@@ -98,29 +128,51 @@ def product_create():
     form.category_id.choices = [(c.id, c.name) for c in categories]
 
     if form.validate_on_submit():
-        product = Product(
-            name=form.name.data,
-            category_id=form.category_id.data,
-            price_idr=form.price_idr.data,
-            stock=form.stock.data,
-            description=form.description.data,
-            is_active=form.is_active.data,
-        )
-        db.session.add(product)
-        db.session.commit()
+        upload = form.image.data
+        if not upload or not upload.filename:
+            form.image.errors.append("Foto produk wajib diunggah.")
+        else:
+            image_data, error = process_product_image(upload)
+            if error:
+                form.image.errors.append(error)
+        if form.image.errors:
+            return render_template(
+                "admin/product_form.html",
+                form=form,
+                title="Tambah Barang Baru",
+            )
+        else:
+            image_filename = f"{uuid.uuid4().hex}{image_data[1]}"
+            _save_product_image(image_filename, image_data[0])
+            product = Product(
+                name=form.name.data,
+                category_id=form.category_id.data,
+                price_idr=form.price_idr.data,
+                stock=form.stock.data,
+                description=form.description.data,
+                is_active=form.is_active.data,
+                image_filename=image_filename,
+            )
+            db.session.add(product)
+            try:
+                db.session.commit()
+            except SQLAlchemyError:
+                db.session.rollback()
+                _remove_product_image(image_filename)
+                raise
 
-        log_event(
-            "admin.product_created",
-            user_id=current_user.id,
-            username=current_user.username,
-            product_id=product.id,
-            product_name=product.name,
-            src_ip=request.remote_addr,
-            method=request.method,
-            path=request.path,
-        )
-        flash(f"Barang '{product.name}' berhasil ditambahkan!", "success")
-        return redirect(url_for("admin.products"))
+            log_event(
+                "admin.product_created",
+                user_id=current_user.id,
+                username=current_user.username,
+                product_id=product.id,
+                product_name=product.name,
+                src_ip=request.remote_addr,
+                method=request.method,
+                path=request.path,
+            )
+            flash(f"Barang '{product.name}' berhasil ditambahkan!", "success")
+            return redirect(url_for("admin.products"))
 
     return render_template("admin/product_form.html", form=form, title="Tambah Barang Baru")
 
@@ -138,27 +190,57 @@ def product_edit(product_id):
     form.category_id.choices = [(c.id, c.name) for c in categories]
 
     if form.validate_on_submit():
-        product.name = form.name.data
-        product.category_id = form.category_id.data
-        product.price_idr = form.price_idr.data
-        product.stock = form.stock.data
-        product.description = form.description.data
-        product.is_active = form.is_active.data
-        db.session.commit()
+        upload = form.image.data
+        image_data = None
+        if upload and upload.filename:
+            image_data, error = process_product_image(upload)
+            if error:
+                form.image.errors.append(error)
+        elif not product.image_filename:
+            form.image.errors.append("Foto produk wajib diunggah.")
 
-        log_event(
-            "admin.product_updated",
-            user_id=current_user.id,
-            username=current_user.username,
-            product_id=product.id,
-            src_ip=request.remote_addr,
-            method=request.method,
-            path=request.path,
-        )
-        flash(f"Barang '{product.name}' berhasil diperbarui!", "success")
-        return redirect(url_for("admin.products"))
+        if not form.image.errors:
+            previous_image = product.image_filename
+            image_filename = None
+            if image_data:
+                image_filename = f"{uuid.uuid4().hex}{image_data[1]}"
+                _save_product_image(image_filename, image_data[0])
 
-    return render_template("admin/product_form.html", form=form, title="Edit Barang")
+            product.name = form.name.data
+            product.category_id = form.category_id.data
+            product.price_idr = form.price_idr.data
+            product.stock = form.stock.data
+            product.description = form.description.data
+            product.is_active = form.is_active.data
+            if image_filename:
+                product.image_filename = image_filename
+            try:
+                db.session.commit()
+            except SQLAlchemyError:
+                db.session.rollback()
+                _remove_product_image(image_filename)
+                raise
+
+            if image_filename:
+                _remove_product_image(previous_image)
+            log_event(
+                "admin.product_updated",
+                user_id=current_user.id,
+                username=current_user.username,
+                product_id=product.id,
+                src_ip=request.remote_addr,
+                method=request.method,
+                path=request.path,
+            )
+            flash(f"Barang '{product.name}' berhasil diperbarui!", "success")
+            return redirect(url_for("admin.products"))
+
+    return render_template(
+        "admin/product_form.html",
+        form=form,
+        title="Edit Barang",
+        product=product,
+    )
 
 
 # 5. HAPUS PRODUK (Delete)
@@ -170,11 +252,34 @@ def product_delete(product_id):
         abort(404)
 
     product_name = product.name
-    db.session.delete(product)
+    db.session.query(CartItem).filter_by(product_id=product_id).delete(
+        synchronize_session=False
+    )
+
+    has_order_history = (
+        db.session.query(OrderItem.id).filter_by(product_id=product_id).first() is not None
+    )
+    has_reviews = db.session.query(Review.id).filter_by(product_id=product_id).first() is not None
+    has_history = has_order_history or has_reviews
+    if has_history:
+        product.is_active = False
+        event = "admin.product_deactivated"
+        message = (
+            f"Barang '{product_name}' dinonaktifkan karena tercatat dalam "
+            "riwayat pesanan atau ulasan."
+        )
+    else:
+        image_filename = product.image_filename
+        db.session.delete(product)
+        event = "admin.product_deleted"
+        message = f"Barang '{product_name}' telah dihapus."
+
     db.session.commit()
+    if not has_history:
+        _remove_product_image(image_filename)
 
     log_event(
-        "admin.product_deleted",
+        event,
         user_id=current_user.id,
         username=current_user.username,
         product_id=product_id,
@@ -183,5 +288,5 @@ def product_delete(product_id):
         method=request.method,
         path=request.path,
     )
-    flash(f"Barang '{product_name}' telah dihapus.", "info")
+    flash(message, "info")
     return redirect(url_for("admin.products"))

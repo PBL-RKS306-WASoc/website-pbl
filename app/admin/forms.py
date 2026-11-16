@@ -1,5 +1,13 @@
 from flask_wtf import FlaskForm
-from wtforms import BooleanField, IntegerField, SelectField, StringField, SubmitField, TextAreaField
+from wtforms import (
+    BooleanField,
+    FileField,
+    IntegerField,
+    SelectField,
+    StringField,
+    SubmitField,
+    TextAreaField,
+)
 from wtforms.validators import DataRequired, Length, NumberRange
 
 
@@ -10,6 +18,7 @@ class CategoryForm(FlaskForm):
 
 class ProductForm(FlaskForm):
     name = StringField("Nama Barang", validators=[DataRequired(), Length(max=150)])
+    image = FileField("Foto Produk (JPG/PNG)")
     category_id = SelectField("Kategori", coerce=int, validators=[DataRequired()])
     price_idr = IntegerField(
         "Harga (Rp)",

@@ -37,6 +37,7 @@
       <thead class="table-dark">
         <tr>
           <th>ID</th>
+          <th>Foto</th>
           <th>Nama Barang</th>
           <th>Kategori</th>
           <th>Harga (Rp)</th>
@@ -49,6 +50,14 @@
         {% for p in products %}
         <tr>
           <td>{{ p.id }}</td>
+          <td>
+            {% if p.image_filename %}
+              <img src="{{ url_for('catalog.product_image', product_id=p.id) }}"
+                   alt="{{ p.name }}" width="64" height="64" class="rounded object-fit-cover">
+            {% else %}
+              <span class="badge bg-warning text-dark">Belum ada</span>
+            {% endif %}
+          </td>
           <td><strong>{{ p.name }}</strong></td>
           <td>{{ p.category.name }}</td>
           <td>Rp {{ "{:,}".format(p.price_idr).replace(",", ".") }}</td>
@@ -70,7 +79,7 @@
         </tr>
         {% else %}
         <tr>
-          <td colspan="7" class="text-center py-4 text-muted">Belum ada produk. Buat kategori lalu klik "+ Tambah Barang Baru".</td>
+          <td colspan="8" class="text-center py-4 text-muted">Belum ada produk. Buat kategori lalu klik "+ Tambah Barang Baru".</td>
         </tr>
         {% endfor %}
       </tbody>
