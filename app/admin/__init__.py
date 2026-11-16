@@ -7,7 +7,7 @@ from sqlalchemy import or_
 
 from ..extensions import db
 from ..logging_setup import log_event
-from ..models import Category, Order, Product, User
+from ..models import CartItem, Category, Order, OrderItem, Product, Review, User
 from .forms import CategoryForm, ProductForm
 
 bp = Blueprint("admin", __name__, url_prefix="/admin")
@@ -170,11 +170,31 @@ def product_delete(product_id):
         abort(404)
 
     product_name = product.name
-    db.session.delete(product)
+    db.session.query(CartItem).filter_by(product_id=product_id).delete(
+        synchronize_session=False
+    )
+
+    has_order_history = (
+        db.session.query(OrderItem.id).filter_by(product_id=product_id).first() is not None
+    )
+    has_reviews = db.session.query(Review.id).filter_by(product_id=product_id).first() is not None
+    has_history = has_order_history or has_reviews
+    if has_history:
+        product.is_active = False
+        event = "admin.product_deactivated"
+        message = (
+            f"Barang '{product_name}' dinonaktifkan karena tercatat dalam "
+            "riwayat pesanan atau ulasan."
+        )
+    else:
+        db.session.delete(product)
+        event = "admin.product_deleted"
+        message = f"Barang '{product_name}' telah dihapus."
+
     db.session.commit()
 
     log_event(
-        "admin.product_deleted",
+        event,
         user_id=current_user.id,
         username=current_user.username,
         product_id=product_id,
@@ -183,5 +203,5 @@ def product_delete(product_id):
         method=request.method,
         path=request.path,
     )
-    flash(f"Barang '{product_name}' telah dihapus.", "info")
+    flash(message, "info")
     return redirect(url_for("admin.products"))
