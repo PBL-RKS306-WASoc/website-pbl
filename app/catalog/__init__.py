@@ -1,4 +1,15 @@
-from flask import Blueprint, abort, flash, redirect, render_template, request, url_for
+import os
+
+from flask import (
+    Blueprint,
+    abort,
+    flash,
+    redirect,
+    render_template,
+    request,
+    send_from_directory,
+    url_for,
+)
 from flask_login import current_user, login_required
 from sqlalchemy import func
 from sqlalchemy.exc import IntegrityError
@@ -6,6 +17,7 @@ from sqlalchemy.exc import IntegrityError
 from ..extensions import db
 from ..logging_setup import log_event
 from ..models import Category, Order, OrderItem, Product, Review
+from ..product_images import product_image_directory
 from .forms import ReviewForm
 
 bp = Blueprint("catalog", __name__)
@@ -75,6 +87,19 @@ def detail(product_id):
         can_review=can_review,
         user_review=user_review,
         review_form=ReviewForm(),
+    )
+
+
+@bp.route("/products/<int:product_id>/image")
+def product_image(product_id):
+    product = db.session.get(Product, product_id)
+    if not product or not product.image_filename:
+        abort(404)
+    mimetype = "image/png" if product.image_filename.endswith(".png") else "image/jpeg"
+    return send_from_directory(
+        product_image_directory(),
+        os.path.basename(product.image_filename),
+        mimetype=mimetype,
     )
 
 

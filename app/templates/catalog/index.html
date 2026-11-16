@@ -30,6 +30,17 @@
   {% for p in products %}
   <div class="col-md-4">
     <div class="card h-100 shadow-sm">
+      <figure class="p-3 pb-0 mb-0">
+        {% if p.image_filename %}
+        <img src="{{ url_for('catalog.product_image', product_id=p.id) }}"
+             alt="{{ p.name }}" class="card-img-top rounded"
+             style="height: 220px; object-fit: cover;">
+        {% else %}
+        <div class="d-flex align-items-center justify-content-center bg-light border rounded text-muted"
+             style="height: 220px;">Foto produk belum tersedia</div>
+        {% endif %}
+        <figcaption class="text-muted small mt-2">{{ p.name }}</figcaption>
+      </figure>
       <div class="card-body d-flex flex-column">
         <span class="badge bg-secondary align-self-start mb-2">{{ p.category.name }}</span>
         <h5 class="card-title">{{ p.name }}</h5>

@@ -7,11 +7,26 @@
     <div class="card shadow-sm">
       <div class="card-body p-4">
         <h4 class="mb-3">{{ title }}</h4>
-        <form method="post">
+        <form method="post" enctype="multipart/form-data">
           {{ form.hidden_tag() }}
           <div class="mb-3">
             {{ form.name.label(class="form-label") }}
             {{ form.name(class="form-control") }}
+          </div>
+          <div class="mb-3">
+            {{ form.image.label(class="form-label") }}
+            {{ form.image(class="form-control", accept="image/jpeg,image/png") }}
+            <small class="form-text text-muted">
+              JPG atau PNG, maksimal 2 MB. Foto wajib untuk setiap produk.
+            </small>
+            {% for err in form.image.errors %}<div class="text-danger small">{{ err }}</div>{% endfor %}
+            {% if product and product.image_filename %}
+            <figure class="mt-3 mb-0" style="max-width: 240px;">
+              <img src="{{ url_for('catalog.product_image', product_id=product.id) }}"
+                   alt="{{ product.name }}" class="img-fluid rounded">
+              <figcaption class="text-muted small mt-1">{{ product.name }}</figcaption>
+            </figure>
+            {% endif %}
           </div>
           <div class="mb-3">
             {{ form.category_id.label(class="form-label") }}

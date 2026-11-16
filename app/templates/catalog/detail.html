@@ -4,6 +4,17 @@
 {% block content %}
 <div class="card shadow-sm mb-4">
   <div class="card-body p-4">
+    <figure class="mb-4" style="max-width: 640px;">
+      {% if product.image_filename %}
+      <img src="{{ url_for('catalog.product_image', product_id=product.id) }}"
+           alt="{{ product.name }}" class="img-fluid rounded w-100"
+           style="max-height: 480px; object-fit: contain;">
+      {% else %}
+      <div class="d-flex align-items-center justify-content-center bg-light border rounded text-muted"
+           style="height: 320px;">Foto produk belum tersedia</div>
+      {% endif %}
+      <figcaption class="text-muted small mt-2">{{ product.name }}</figcaption>
+    </figure>
     <span class="badge bg-secondary mb-2">{{ product.category.name }}</span>
     <h3>{{ product.name }}</h3>
     {% if average_rating %}
