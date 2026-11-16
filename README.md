@@ -44,3 +44,5 @@ Admin mengunggah satu foto utama JPG/PNG pada form tambah atau edit produk. Foto
 ## Konfigurasi API SOC
 
 API internal SOC dinonaktifkan jika `SOC_API_TOKEN` kosong. Atur token dan `SOC_API_ALLOWED_IPS` (daftar IP dipisahkan koma) pada `.env`; `SOC_API_DEFAULT_MINUTES` dan `SOC_API_MAX_MINUTES` mengatur durasi pembatasan akun. Nama konfigurasi durasi menggunakan `MINUTES`, sesuai dengan yang dipakai endpoint SOC.
+
+Jalankan Docker lokal: salin `docker-local/.env.example` ke `docker-local/.env`, isi nilainya, lalu jalankan `docker compose --env-file docker-local/.env up -d`.
