@@ -1,47 +1,127 @@
 {% extends "base.html" %}
 {% block title %}Pembayaran Pesanan #{{ order.id }} - Toko PBL 306{% endblock %}
-{% block content %}
-<h3 class="mb-3">Pembayaran Pesanan #{{ order.id }}
-  <span class="badge bg-secondary fs-6">{{ payment.status }}</span></h3>
-<div class="row g-4">
-  <div class="col-lg-7">
-    <p><b>Customer:</b> {{ customer.username }} ({{ customer.email }})<br>
-       <b>Status pesanan:</b> {{ order.status }}<br>
-       <b>Alamat:</b> {{ order.shipping_address }}</p>
-    <table class="table table-bordered bg-white align-middle">
-      <thead class="table-light"><tr><th>Barang</th><th class="text-end">Harga</th><th class="text-end">Jumlah</th><th class="text-end">Subtotal</th></tr></thead>
-      <tbody>
-      {% for it in order.items %}
-        <tr><td>{{ it.product.name }}</td><td class="text-end">{{ it.unit_price_idr|rupiah }}</td>
-            <td class="text-end">{{ it.quantity }}</td><td class="text-end">{{ (it.unit_price_idr * it.quantity)|rupiah }}</td></tr>
-      {% endfor %}
-      </tbody>
-      <tfoot><tr><th colspan="3" class="text-end">Total</th><th class="text-end">{{ order.total_idr|rupiah }}</th></tr></tfoot>
-    </table>
 
-    {% if reviewable %}
-    <div class="d-flex gap-2 align-items-start">
-      <form method="post" action="{{ url_for('admin_payments.approve', order_id=order.id) }}" onsubmit="return confirm('Setujui pembayaran ini?')">
-        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-        <button class="btn btn-success">Setujui</button>
-      </form>
-      <form method="post" action="{{ url_for('admin_payments.reject', order_id=order.id) }}" class="d-flex gap-2" onsubmit="return confirm('Tolak pembayaran ini?')">
-        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-        <input type="text" name="reason" maxlength="200" class="form-control" placeholder="Alasan (opsional)">
-        <button class="btn btn-danger">Tolak</button>
-      </form>
+{% block content %}
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-4">
+  <div class="d-flex align-items-center gap-3">
+    <a href="{{ url_for('admin_payments.index') }}" class="btn btn-outline-secondary btn-sm">
+      <i class="bi bi-arrow-left"></i>
+    </a>
+    <div>
+      <h3 class="fw-bold mb-0 d-inline-block me-2">Pembayaran Pesanan #{{ order.id }}</h3>
+      {% if payment.status == 'waiting_verification' %}
+        <span class="badge rounded-pill bg-info text-dark"><i class="bi bi-hourglass-split me-1"></i>Menunggu Verifikasi</span>
+      {% elif payment.status == 'paid' or payment.status == 'approved' %}
+        <span class="badge rounded-pill bg-success"><i class="bi bi-check-circle me-1"></i>Disetujui</span>
+      {% elif payment.status == 'rejected' %}
+        <span class="badge rounded-pill bg-danger"><i class="bi bi-x-circle me-1"></i>Ditolak</span>
+      {% else %}
+        <span class="badge rounded-pill bg-secondary">{{ payment.status }}</span>
+      {% endif %}
     </div>
-    {% elif reviewer %}
-    <div class="alert alert-secondary">Diproses oleh <b>{{ reviewer.username }}</b>
-      pada {{ payment.reviewed_at.strftime('%d/%m/%Y %H:%M') }} UTC.</div>
-    {% else %}
-    <div class="alert alert-secondary">Pembayaran tidak dalam status menunggu.</div>
-    {% endif %}
-  </div>
-  <div class="col-lg-5">
-    <h6>Bukti pembayaran</h6>
-    <img src="{{ url_for('orders.proof', order_id=order.id) }}" alt="Bukti pembayaran" class="img-fluid border bg-white">
   </div>
 </div>
-<a href="{{ url_for('admin_payments.index') }}" class="btn btn-outline-secondary mt-3">&laquo; Daftar Pembayaran</a>
+
+<div class="row g-4 align-items-start">
+  <!-- Kolom Kiri: Info Customer, Rincian Barang & Keputusan Admin -->
+  <div class="col-lg-7">
+    <!-- Info Customer & Alamat -->
+    <div class="card border-0 shadow-sm rounded-4 mb-4">
+      <div class="card-body p-4">
+        <h6 class="fw-bold text-uppercase text-muted small mb-3">Informasi Customer & Pengiriman</h6>
+        <div class="row g-2 small">
+          <div class="col-sm-4 text-muted">Username / Email</div>
+          <div class="col-sm-8 fw-semibold">{{ customer.username }} ({{ customer.email }})</div>
+          
+          <div class="col-sm-4 text-muted">Status Pesanan</div>
+          <div class="col-sm-8"><span class="badge bg-secondary">{{ order.status }}</span></div>
+          
+          <div class="col-sm-4 text-muted">Alamat Pengiriman</div>
+          <div class="col-sm-8">{{ order.shipping_address }}</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tabel Item Pesanan -->
+    <div class="card border-0 shadow-sm rounded-4 overflow-hidden mb-4">
+      <div class="table-responsive">
+        <table class="table align-middle mb-0 bg-white">
+          <thead class="table-light text-muted small text-uppercase">
+            <tr>
+              <th class="ps-4">Barang</th>
+              <th class="text-end">Harga</th>
+              <th class="text-center">Jumlah</th>
+              <th class="pe-4 text-end">Subtotal</th>
+            </tr>
+          </thead>
+          <tbody>
+          {% for it in order.items %}
+            <tr>
+              <td class="ps-4 fw-medium">{{ it.product.name }}</td>
+              <td class="text-end text-nowrap">{{ it.unit_price_idr|rupiah }}</td>
+              <td class="text-center">{{ it.quantity }}</td>
+              <td class="pe-4 text-end fw-semibold text-nowrap">{{ (it.unit_price_idr * it.quantity)|rupiah }}</td>
+            </tr>
+          {% endfor %}
+          </tbody>
+          <tfoot class="table-light">
+            <tr>
+              <th colspan="3" class="text-end py-3">Total Tagihan</th>
+              <th class="pe-4 text-end py-3 text-primary fs-6">{{ order.total_idr|rupiah }}</th>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+    </div>
+
+    <!-- Panel Aksi Verifikasi Admin -->
+    <div class="card border-0 shadow-sm rounded-4">
+      <div class="card-body p-4">
+        <h6 class="fw-bold mb-3">Keputusan Verifikasi</h6>
+        {% if reviewable %}
+          <div class="d-flex flex-column flex-md-row gap-3 align-items-stretch align-items-md-center">
+            <form method="post" action="{{ url_for('admin_payments.approve', order_id=order.id) }}" onsubmit="return confirm('Setujui pembayaran ini?')">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              <button type="submit" class="btn btn-success fw-semibold px-4 w-100">
+                <i class="bi bi-check-circle me-1"></i> Setujui Pembayaran
+              </button>
+            </form>
+
+            <form method="post" action="{{ url_for('admin_payments.reject', order_id=order.id) }}" class="d-flex gap-2 flex-grow-1" onsubmit="return confirm('Tolak pembayaran ini?')">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              <input type="text" name="reason" maxlength="200" class="form-control" placeholder="Alasan penolakan (opsional)">
+              <button type="submit" class="btn btn-danger fw-semibold px-3 text-nowrap">
+                <i class="bi bi-x-circle me-1"></i> Tolak
+              </button>
+            </form>
+          </div>
+        {% elif reviewer %}
+          <div class="alert alert-secondary border-0 mb-0">
+            <i class="bi bi-person-check-fill me-2"></i>Diproses oleh <b>{{ reviewer.username }}</b>
+            pada {{ payment.reviewed_at.strftime('%d/%m/%Y %H:%M') }} UTC.
+          </div>
+        {% else %}
+          <div class="alert alert-secondary border-0 mb-0">
+            <i class="bi bi-info-circle me-2"></i>Pembayaran tidak dalam status menunggu verifikasi.
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <!-- Kolom Kanan: Preview Bukti Pembayaran -->
+  <div class="col-lg-5">
+    <div class="card border-0 shadow-sm rounded-4">
+      <div class="card-header bg-white border-bottom py-3 px-4 d-flex justify-content-between align-items-center">
+        <h6 class="fw-bold mb-0"><i class="bi bi-image text-primary me-2"></i>Bukti Pembayaran</h6>
+        <a href="{{ url_for('orders.proof', order_id=order.id) }}" target="_blank" class="btn btn-sm btn-outline-primary">
+          <i class="bi bi-box-arrow-up-right me-1"></i> Buka Penuh
+        </a>
+      </div>
+      <div class="card-body p-3 bg-light text-center">
+        <img src="{{ url_for('orders.proof', order_id=order.id) }}" alt="Bukti pembayaran" class="img-fluid rounded border bg-white shadow-sm">
+      </div>
+    </div>
+  </div>
+</div>
 {% endblock %}

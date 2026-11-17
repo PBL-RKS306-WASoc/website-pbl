@@ -2,62 +2,113 @@
 {% block title %}Dashboard Admin - Toko PBL 306{% endblock %}
 
 {% block content %}
-<div class="d-flex justify-content-between align-items-center mb-4">
-  <h3>Dashboard Admin</h3>
-  <span class="badge bg-warning text-dark fs-6">Akses Khusus Administrator</span>
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-4">
+  <div>
+    <h3 class="fw-bold mb-0"><i class="bi bi-speedometer2 text-primary me-2"></i>Dashboard Admin</h3>
+    <p class="text-muted small mb-0">Ringkasan operasional dan manajemen Toko PBL 306</p>
+  </div>
+  <span class="badge bg-warning text-dark px-3 py-2 fw-semibold">
+    <i class="bi bi-shield-lock-fill me-1"></i>Akses Khusus Administrator
+  </span>
 </div>
 
-<div class="row g-3 mb-4">
+<!-- Baris 1: Statistik Utama -->
+<div class="row g-3 mb-3">
   <div class="col-md-4">
-    <div class="card shadow-sm border-primary">
-      <div class="card-body">
-        <h6 class="text-muted">Total Produk Katalog</h6>
-        <h2 class="mb-0">{{ total_products }}</h2>
+    <div class="card border-0 border-start border-primary border-4 shadow-sm rounded-3 h-100">
+      <div class="card-body d-flex justify-content-between align-items-center p-4">
+        <div>
+          <span class="text-muted small text-uppercase fw-semibold d-block mb-1">Total Produk Katalog</span>
+          <h2 class="fw-bold mb-0 text-dark">{{ total_products }}</h2>
+        </div>
+        <div class="rounded-3 bg-primary bg-opacity-10 text-primary p-3">
+          <i class="bi bi-box-seam fs-3"></i>
+        </div>
       </div>
     </div>
   </div>
+
   <div class="col-md-4">
-    <div class="card shadow-sm border-success">
-      <div class="card-body">
-        <h6 class="text-muted">Total Akun Pengguna</h6>
-        <h2 class="mb-0">{{ total_users }}</h2>
+    <div class="card border-0 border-start border-success border-4 shadow-sm rounded-3 h-100">
+      <div class="card-body d-flex justify-content-between align-items-center p-4">
+        <div>
+          <span class="text-muted small text-uppercase fw-semibold d-block mb-1">Total Akun Pengguna</span>
+          <h2 class="fw-bold mb-0 text-dark">{{ total_users }}</h2>
+        </div>
+        <div class="rounded-3 bg-success bg-opacity-10 text-success p-3">
+          <i class="bi bi-people-fill fs-3"></i>
+        </div>
       </div>
     </div>
   </div>
+
   <div class="col-md-4">
-    <div class="card shadow-sm border-info">
-      <div class="card-body">
-        <h6 class="text-muted">Total Pesanan</h6>
-        <h2 class="mb-0">{{ total_orders }}</h2>
-      </div>
-    </div>
-  </div>
-</div>
-<div class="row g-3 mb-4">
-  <div class="col-md-6">
-    <div class="card shadow-sm border-secondary">
-      <div class="card-body">
-        <h6 class="text-muted">Pesanan lunas - Manual</h6>
-        <h2 class="mb-0">{{ paid_manual_orders }}</h2>
-      </div>
-    </div>
-  </div>
-  <div class="col-md-6">
-    <div class="card shadow-sm border-success">
-      <div class="card-body">
-        <h6 class="text-muted">Pesanan lunas - Midtrans</h6>
-        <h2 class="mb-0">{{ paid_midtrans_orders }}</h2>
+    <div class="card border-0 border-start border-info border-4 shadow-sm rounded-3 h-100">
+      <div class="card-body d-flex justify-content-between align-items-center p-4">
+        <div>
+          <span class="text-muted small text-uppercase fw-semibold d-block mb-1">Total Pesanan</span>
+          <h2 class="fw-bold mb-0 text-dark">{{ total_orders }}</h2>
+        </div>
+        <div class="rounded-3 bg-info bg-opacity-10 text-info p-3">
+          <i class="bi bi-bag-check-fill fs-3"></i>
+        </div>
       </div>
     </div>
   </div>
 </div>
 
-<div class="card shadow-sm">
-  <div class="card-body">
-    <h5>Menu Manajemen Toko</h5>
-    <div class="d-flex gap-2 mt-3">
-      <a href="{{ url_for('admin.products') }}" class="btn btn-primary">Kelola Produk & Kategori (CRUD)</a>
-      <a href="{{ url_for('catalog.index') }}" class="btn btn-outline-secondary">Lihat Katalog Depan</a>
+<!-- Baris 2: Statistik Metode Pembayaran Lunas -->
+<div class="row g-3 mb-4">
+  <div class="col-md-6">
+    <div class="card border-0 border-start border-secondary border-4 shadow-sm rounded-3 h-100">
+      <div class="card-body d-flex justify-content-between align-items-center p-4">
+        <div>
+          <span class="text-muted small text-uppercase fw-semibold d-block mb-1">Pesanan Lunas — Transfer Manual</span>
+          <h2 class="fw-bold mb-0 text-dark">{{ paid_manual_orders }}</h2>
+        </div>
+        <div class="rounded-3 bg-secondary bg-opacity-10 text-secondary p-3">
+          <i class="bi bi-receipt fs-3"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-6">
+    <div class="card border-0 border-start border-success border-4 shadow-sm rounded-3 h-100">
+      <div class="card-body d-flex justify-content-between align-items-center p-4">
+        <div>
+          <span class="text-muted small text-uppercase fw-semibold d-block mb-1">Pesanan Lunas — Midtrans</span>
+          <h2 class="fw-bold mb-0 text-dark">{{ paid_midtrans_orders }}</h2>
+        </div>
+        <div class="rounded-3 bg-success bg-opacity-10 text-success p-3">
+          <i class="bi bi-lightning-charge-fill fs-3"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Menu Manajemen Toko -->
+<div class="card border-0 shadow-sm rounded-4">
+  <div class="card-body p-4">
+    <h5 class="fw-bold mb-1">Menu Manajemen Toko</h5>
+    <p class="text-muted small mb-3">Akses cepat ke fitur pengelolaan katalog, verifikasi pembayaran, dan laporan.</p>
+    <div class="d-flex flex-wrap gap-2">
+      <a href="{{ url_for('admin.products') }}" class="btn btn-primary fw-semibold px-3">
+        <i class="bi bi-boxes me-1"></i> Kelola Produk & Kategori (CRUD)
+      </a>
+      <a href="{{ url_for('admin_payments.index') }}" class="btn btn-outline-primary fw-medium px-3">
+        <i class="bi bi-credit-card me-1"></i> Verifikasi Pembayaran
+      </a>
+      <a href="{{ url_for('admin_reports.index') }}" class="btn btn-outline-primary fw-medium px-3">
+        <i class="bi bi-file-earmark-bar-graph me-1"></i> Laporan Transaksi
+      </a>
+      <a href="{{ url_for('admin_users.index') }}" class="btn btn-outline-primary fw-medium px-3">
+        <i class="bi bi-person-lines-fill me-1"></i> Kelola Pengguna
+      </a>
+      <a href="{{ url_for('catalog.index') }}" class="btn btn-outline-secondary ms-md-auto">
+        <i class="bi bi-shop me-1"></i> Lihat Katalog Depan
+      </a>
     </div>
   </div>
 </div>

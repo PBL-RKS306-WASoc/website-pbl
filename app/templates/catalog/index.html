@@ -2,63 +2,113 @@
 {% block title %}Katalog Produk - Toko PBL 306{% endblock %}
 
 {% block content %}
-<div class="row mb-4 align-items-center">
-  <div class="col-md-5">
-    <h3 class="mb-0">Katalog Produk</h3>
-  </div>
-  <div class="col-md-7">
-    <form method="get" class="row g-2">
-      <div class="col-sm-5">
-        <select name="category_id" class="form-select">
-          <option value="">-- Semua Kategori --</option>
-          {% for c in categories %}
-            <option value="{{ c.id }}" {% if selected_category == c.id %}selected{% endif %}>{{ c.name }}</option>
-          {% endfor %}
-        </select>
-      </div>
-      <div class="col-sm-5">
-        <input type="text" name="q" value="{{ q }}" class="form-control" placeholder="Cari nama barang...">
-      </div>
-      <div class="col-sm-2">
-        <button type="submit" class="btn btn-dark w-100">Cari</button>
-      </div>
-    </form>
+<!-- Hero Banner Toko -->
+<div class="p-4 p-md-5 mb-4 rounded-4 text-white shadow-sm" style="background: linear-gradient(135deg, #0F172A 0%, #1E3A8A 100%);">
+  <div class="row align-items-center">
+    <div class="col-lg-8">
+      <span class="badge bg-primary mb-2 px-3 py-2">Katalog Resmi</span>
+      <h1 class="h2 fw-bold mb-2">Perangkat Keras & Teknologi Pilihan</h1>
+      <p class="text-light opacity-75 mb-0">Temukan kebutuhan perangkat keras dengan spesifikasi terjamin dan proses transaksi terverifikasi.</p>
+    </div>
   </div>
 </div>
 
-<div class="row g-3">
+<!-- Header & Form Pencarian / Filter Kategori -->
+<div class="card border-0 shadow-sm mb-4 rounded-3">
+  <div class="card-body p-3">
+    <div class="row align-items-center g-3">
+      <div class="col-lg-4">
+        <h3 class="h5 fw-bold mb-0"><i class="bi bi-grid-fill text-primary me-2"></i>Katalog Produk</h3>
+      </div>
+      <div class="col-lg-8">
+        <form method="get" class="row g-2">
+          <div class="col-sm-5">
+            <select name="category_id" class="form-select">
+              <option value="">-- Semua Kategori --</option>
+              {% for c in categories %}
+                <option value="{{ c.id }}" {% if selected_category == c.id %}selected{% endif %}>{{ c.name }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="col-sm-5">
+            <div class="input-group">
+              <span class="input-group-text bg-white border-end-0"><i class="bi bi-search text-muted"></i></span>
+              <input type="text" name="q" value="{{ q }}" class="form-control border-start-0" placeholder="Cari nama barang...">
+            </div>
+          </div>
+          <div class="col-sm-2">
+            <button type="submit" class="btn btn-primary w-100 fw-semibold">Cari</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Grid Kartu Produk -->
+<div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4">
   {% for p in products %}
-  <div class="col-md-4">
-    <div class="card h-100 shadow-sm">
-      <figure class="p-3 pb-0 mb-0">
+  <div class="col">
+    <div class="card h-100 border-0 shadow-sm product-card rounded-3 overflow-hidden">
+      <!-- Gambar Produk (Tetap memakai endpoint catalog.product_image) -->
+      <a href="{{ url_for('catalog.detail', product_id=p.id) }}" class="text-decoration-none position-relative bg-white">
         {% if p.image_filename %}
-        <img src="{{ url_for('catalog.product_image', product_id=p.id) }}"
-             alt="{{ p.name }}" class="card-img-top rounded"
-             style="height: 220px; object-fit: cover;">
+          <img src="{{ url_for('catalog.product_image', product_id=p.id) }}"
+               alt="{{ p.name }}" class="card-img-top"
+               style="height: 210px; object-fit: cover;">
         {% else %}
-        <div class="d-flex align-items-center justify-content-center bg-light border rounded text-muted"
-             style="height: 220px;">Foto produk belum tersedia</div>
+          <div class="d-flex flex-column align-items-center justify-content-center bg-light border-bottom text-muted"
+               style="height: 210px;">
+            <i class="bi bi-image fs-1 opacity-50 mb-1"></i>
+            <span class="small">Foto belum tersedia</span>
+          </div>
         {% endif %}
-        <figcaption class="text-muted small mt-2">{{ p.name }}</figcaption>
-      </figure>
-      <div class="card-body d-flex flex-column">
-        <span class="badge bg-secondary align-self-start mb-2">{{ p.category.name }}</span>
-        <h5 class="card-title">{{ p.name }}</h5>
-        <h6 class="text-primary fw-bold mb-2">Rp {{ "{:,}".format(p.price_idr).replace(",", ".") }}</h6>
-        <p class="card-text text-muted small flex-grow-1">
-          {{ (p.description or "Tidak ada deskripsi.")[:100] }}
+
+        <!-- Badge Status Stok -->
+        {% if p.stock <= 0 %}
+          <span class="position-absolute top-0 end-0 m-2 badge bg-danger">Stok Habis</span>
+        {% elif p.stock <= 5 %}
+          <span class="position-absolute top-0 end-0 m-2 badge bg-warning text-dark">Sisa {{ p.stock }}</span>
+        {% endif %}
+      </a>
+
+      <!-- Isi Kartu -->
+      <div class="card-body d-flex flex-column p-3">
+        <span class="badge bg-secondary bg-opacity-10 text-secondary border align-self-start mb-2">
+          {{ p.category.name }}
+        </span>
+        
+        <a href="{{ url_for('catalog.detail', product_id=p.id) }}" class="text-decoration-none text-dark">
+          <h5 class="card-title fs-6 fw-bold mb-1 text-truncate-2" title="{{ p.name }}">{{ p.name }}</h5>
+        </a>
+
+        <p class="card-text text-muted small flex-grow-1 mb-3">
+          {{ (p.description or "Tidak ada deskripsi.")[:75] }}{% if p.description and p.description|length > 75 %}...{% endif %}
         </p>
-        <div class="d-flex justify-content-between align-items-center mt-2">
-          <small class="text-muted">Stok: {{ p.stock }}</small>
-          <a href="{{ url_for('catalog.detail', product_id=p.id) }}" class="btn btn-sm btn-outline-primary">Lihat Detail</a>
+
+        <div class="pt-2 border-top mt-auto">
+          <div class="text-primary fw-bold fs-6 mb-2">
+            Rp {{ "{:,}".format(p.price_idr).replace(",", ".") }}
+          </div>
+          <div class="d-flex justify-content-between align-items-center">
+            <small class="text-muted"><i class="bi bi-box-seam me-1"></i>Stok: <strong>{{ p.stock }}</strong></small>
+            <a href="{{ url_for('catalog.detail', product_id=p.id) }}" class="btn btn-sm btn-outline-primary fw-medium">
+              Detail <i class="bi bi-arrow-right-short"></i>
+            </a>
+          </div>
         </div>
       </div>
     </div>
   </div>
   {% else %}
   <div class="col-12">
-    <div class="alert alert-secondary text-center py-4">
-      Belum ada produk yang ditemukan di katalog.
+    <div class="card border-0 shadow-sm text-center py-5 rounded-4">
+      <div class="card-body">
+        <i class="bi bi-search display-4 text-muted opacity-50"></i>
+        <h5 class="fw-bold mt-3">Produk Tidak Ditemukan</h5>
+        <p class="text-muted mb-3">Belum ada produk yang cocok dengan filter atau kata kunci pencarianmu.</p>
+        <a href="{{ url_for('catalog.index') }}" class="btn btn-outline-primary btn-sm px-4">Reset Pencarian</a>
+      </div>
     </div>
   </div>
   {% endfor %}

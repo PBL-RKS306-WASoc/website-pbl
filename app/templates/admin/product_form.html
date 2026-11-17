@@ -2,57 +2,79 @@
 {% block title %}{{ title }} - Toko PBL 306{% endblock %}
 
 {% block content %}
-<div class="row justify-content-center">
-  <div class="col-md-7">
-    <div class="card shadow-sm">
-      <div class="card-body p-4">
-        <h4 class="mb-3">{{ title }}</h4>
+<div class="row justify-content-center py-2">
+  <div class="col-lg-8">
+    <div class="d-flex align-items-center gap-3 mb-4">
+      <a href="{{ url_for('admin.products') }}" class="btn btn-outline-secondary btn-sm">
+        <i class="bi bi-arrow-left"></i>
+      </a>
+      <h3 class="fw-bold mb-0">{{ title }}</h3>
+    </div>
+
+    <div class="card border-0 shadow-sm rounded-4">
+      <div class="card-body p-4 p-sm-5">
         <form method="post" enctype="multipart/form-data">
           {{ form.hidden_tag() }}
+          
           <div class="mb-3">
-            {{ form.name.label(class="form-label") }}
-            {{ form.name(class="form-control") }}
+            {{ form.name.label(class="form-label fw-medium small") }}
+            {{ form.name(class="form-control", placeholder="Contoh: Logitech G Pro X Superlight") }}
+            {% for err in form.name.errors %}<div class="text-danger small mt-1">{{ err }}</div>{% endfor %}
           </div>
+
           <div class="mb-3">
-            {{ form.image.label(class="form-label") }}
+            {{ form.category_id.label(class="form-label fw-medium small") }}
+            {{ form.category_id(class="form-select") }}
+            {% for err in form.category_id.errors %}<div class="text-danger small mt-1">{{ err }}</div>{% endfor %}
+          </div>
+
+          <div class="row g-3 mb-3">
+            <div class="col-md-6">
+              {{ form.price_idr.label(class="form-label fw-medium small") }}
+              <div class="input-group">
+                <span class="input-group-text bg-light fw-semibold">Rp</span>
+                {{ form.price_idr(class="form-control", placeholder="0") }}
+              </div>
+              {% for err in form.price_idr.errors %}<div class="text-danger small mt-1">{{ err }}</div>{% endfor %}
+            </div>
+            <div class="col-md-6">
+              {{ form.stock.label(class="form-label fw-medium small") }}
+              {{ form.stock(class="form-control", placeholder="0") }}
+              {% for err in form.stock.errors %}<div class="text-danger small mt-1">{{ err }}</div>{% endfor %}
+            </div>
+          </div>
+
+          <div class="mb-3">
+            {{ form.image.label(class="form-label fw-medium small") }}
             {{ form.image(class="form-control", accept="image/jpeg,image/png") }}
-            <small class="form-text text-muted">
-              JPG atau PNG, maksimal 2 MB. Foto wajib untuk setiap produk.
-            </small>
-            {% for err in form.image.errors %}<div class="text-danger small">{{ err }}</div>{% endfor %}
+            <div class="form-text">
+              <i class="bi bi-info-circle me-1"></i>JPG atau PNG, maksimal 2 MB. Foto wajib untuk setiap produk.
+            </div>
+            {% for err in form.image.errors %}<div class="text-danger small mt-1">{{ err }}</div>{% endfor %}
+            
             {% if product and product.image_filename %}
-            <figure class="mt-3 mb-0" style="max-width: 240px;">
-              <img src="{{ url_for('catalog.product_image', product_id=product.id) }}"
-                   alt="{{ product.name }}" class="img-fluid rounded">
-              <figcaption class="text-muted small mt-1">{{ product.name }}</figcaption>
-            </figure>
+              <div class="mt-3 p-3 bg-light border rounded-3 d-inline-block">
+                <span class="small text-muted d-block mb-2">Foto Saat Ini:</span>
+                <img src="{{ url_for('catalog.product_image', product_id=product.id) }}"
+                     alt="{{ product.name }}" class="img-fluid rounded border bg-white" style="max-height: 180px;">
+              </div>
             {% endif %}
           </div>
+
           <div class="mb-3">
-            {{ form.category_id.label(class="form-label") }}
-            {{ form.category_id(class="form-select") }}
+            {{ form.description.label(class="form-label fw-medium small") }}
+            {{ form.description(class="form-control", rows=4, placeholder="Tuliskan spesifikasi lengkap dan deskripsi produk...") }}
+            {% for err in form.description.errors %}<div class="text-danger small mt-1">{{ err }}</div>{% endfor %}
           </div>
-          <div class="row">
-            <div class="col-md-6 mb-3">
-              {{ form.price_idr.label(class="form-label") }}
-              {{ form.price_idr(class="form-control") }}
-            </div>
-            <div class="col-md-6 mb-3">
-              {{ form.stock.label(class="form-label") }}
-              {{ form.stock(class="form-control") }}
-            </div>
-          </div>
-          <div class="mb-3">
-            {{ form.description.label(class="form-label") }}
-            {{ form.description(class="form-control", rows=4) }}
-          </div>
-          <div class="form-check mb-3">
+
+          <div class="form-check form-switch mb-4">
             {{ form.is_active(class="form-check-input") }}
-            {{ form.is_active.label(class="form-check-label") }}
+            {{ form.is_active.label(class="form-check-label fw-medium") }}
           </div>
-          <div class="d-flex gap-2">
-            {{ form.submit(class="btn btn-primary") }}
-            <a href="{{ url_for('admin.products') }}" class="btn btn-outline-secondary">Batal</a>
+
+          <div class="d-flex gap-2 pt-2 border-top">
+            {{ form.submit(class="btn btn-primary px-4 fw-semibold") }}
+            <a href="{{ url_for('admin.products') }}" class="btn btn-outline-secondary px-4">Batal</a>
           </div>
         </form>
       </div>

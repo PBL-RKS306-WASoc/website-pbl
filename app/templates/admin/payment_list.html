@@ -1,32 +1,85 @@
 {% extends "base.html" %}
 {% block title %}Verifikasi Pembayaran - Toko PBL 306{% endblock %}
+
 {% block content %}
-<h3 class="mb-3">Verifikasi Pembayaran</h3>
-<ul class="nav nav-pills mb-3">
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-4">
+  <div>
+    <h3 class="fw-bold mb-0"><i class="bi bi-credit-card-2-back text-primary me-2"></i>Verifikasi Pembayaran</h3>
+    <p class="text-muted small mb-0">Tinjau dan validasi bukti transfer manual dari customer</p>
+  </div>
+</div>
+
+<!-- Filter Tab Status -->
+<ul class="nav nav-pills mb-4 gap-1">
   {% for s in statuses %}
-    <li class="nav-item"><a class="nav-link {% if status == s %}active{% endif %}" href="{{ url_for('admin_payments.index', status=s) }}">{{ s }}</a></li>
+    <li class="nav-item">
+      <a class="nav-link {% if status == s %}active fw-semibold{% else %}bg-white text-dark border{% endif %}" 
+         href="{{ url_for('admin_payments.index', status=s) }}">
+        {{ s|replace('_', ' ')|title }}
+      </a>
+    </li>
   {% endfor %}
-  <li class="nav-item"><a class="nav-link {% if status == 'all' %}active{% endif %}" href="{{ url_for('admin_payments.index', status='all') }}">semua</a></li>
+  <li class="nav-item">
+    <a class="nav-link {% if status == 'all' %}active fw-semibold{% else %}bg-white text-dark border{% endif %}" 
+       href="{{ url_for('admin_payments.index', status='all') }}">
+      Semua
+    </a>
+  </li>
 </ul>
+
 {% if rows %}
-<div class="table-responsive">
-  <table class="table table-bordered align-middle bg-white">
-    <thead class="table-light"><tr><th>Pesanan</th><th>Customer</th><th class="text-end">Total</th><th>Diunggah (UTC)</th><th>Status</th><th></th></tr></thead>
-    <tbody>
-    {% for pay, order, user in rows %}
-      <tr>
-        <td>#{{ order.id }}</td>
-        <td>{{ user.username }}</td>
-        <td class="text-end">{{ order.total_idr|rupiah }}</td>
-        <td>{{ pay.uploaded_at.strftime('%d/%m/%Y %H:%M') }}</td>
-        <td><span class="badge bg-secondary">{{ pay.status }}</span></td>
-        <td><a class="btn btn-sm btn-primary" href="{{ url_for('admin_payments.detail', order_id=order.id) }}">Tinjau</a></td>
-      </tr>
-    {% endfor %}
-    </tbody>
-  </table>
+<div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+  <div class="table-responsive">
+    <table class="table table-hover align-middle mb-0 bg-white">
+      <thead class="table-light text-muted small text-uppercase">
+        <tr>
+          <th class="ps-4">Pesanan</th>
+          <th>Customer</th>
+          <th class="text-end">Total</th>
+          <th>Diunggah (UTC)</th>
+          <th>Status</th>
+          <th class="pe-4 text-end">Aksi</th>
+        </tr>
+      </thead>
+      <tbody>
+      {% for pay, order, user in rows %}
+        <tr>
+          <td class="ps-4 fw-bold text-dark">#{{ order.id }}</td>
+          <td>
+            <div class="fw-medium">{{ user.username }}</div>
+            <small class="text-muted">{{ user.email }}</small>
+          </td>
+          <td class="text-end fw-bold text-primary text-nowrap">{{ order.total_idr|rupiah }}</td>
+          <td class="text-muted small">{{ pay.uploaded_at.strftime('%d/%m/%Y %H:%M') }}</td>
+          <td>
+            {% if pay.status == 'waiting_verification' %}
+              <span class="badge rounded-pill bg-info text-dark"><i class="bi bi-hourglass-split me-1"></i>Menunggu Verifikasi</span>
+            {% elif pay.status == 'paid' or pay.status == 'approved' %}
+              <span class="badge rounded-pill bg-success"><i class="bi bi-check-circle me-1"></i>Disetujui</span>
+            {% elif pay.status == 'rejected' %}
+              <span class="badge rounded-pill bg-danger"><i class="bi bi-x-circle me-1"></i>Ditolak</span>
+            {% else %}
+              <span class="badge rounded-pill bg-secondary">{{ pay.status }}</span>
+            {% endif %}
+          </td>
+          <td class="pe-4 text-end">
+            <a class="btn btn-sm btn-primary fw-medium px-3" href="{{ url_for('admin_payments.detail', order_id=order.id) }}">
+              <i class="bi bi-eye me-1"></i> Tinjau
+            </a>
+          </td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
 </div>
 {% else %}
-<div class="alert alert-info">Tidak ada pembayaran dengan status ini.</div>
+<div class="card border-0 shadow-sm rounded-4 text-center py-5">
+  <div class="card-body">
+    <i class="bi bi-inbox display-4 text-muted opacity-50"></i>
+    <h5 class="fw-bold mt-3">Antrean Kosong</h5>
+    <p class="text-muted mb-0">Tidak ada data pembayaran dengan filter status ini.</p>
+  </div>
+</div>
 {% endif %}
 {% endblock %}
