@@ -2,39 +2,72 @@
 {% block title %}Register - Toko PBL 306{% endblock %}
 
 {% block content %}
-<div class="row justify-content-center">
-  <div class="col-md-6">
-    <div class="card shadow-sm">
-      <div class="card-body p-4">
-        <h4 class="mb-3">Registrasi Customer Baru</h4>
+<div class="row justify-content-center py-3">
+  <div class="col-md-8 col-lg-6">
+    <div class="card border-0 shadow-sm rounded-4">
+      <div class="card-body p-4 p-sm-5">
+        <div class="text-center mb-4">
+          <div class="d-inline-flex align-items-center justify-content-center rounded-circle bg-success bg-opacity-10 text-success mb-3" style="width: 56px; height: 56px;">
+            <i class="bi bi-person-plus-fill fs-3"></i>
+          </div>
+          <h4 class="fw-bold mb-1">Registrasi Customer Baru</h4>
+          <p class="text-muted small mb-0">Buat akun untuk mulai berbelanja di Toko PBL 306</p>
+        </div>
+
         <form method="post">
           {{ form.hidden_tag() }}
-          <div class="mb-3">
-            {{ form.username.label(class="form-label") }}
-            {{ form.username(class="form-control") }}
-            {% for err in form.username.errors %}<small class="text-danger">{{ err }}</small>{% endfor %}
+          
+          <div class="row g-3 mb-3">
+            <div class="col-sm-6">
+              {{ form.username.label(class="form-label fw-medium small") }}
+              {{ form.username(class="form-control", placeholder="Contoh: budi_santoso") }}
+              {% for err in form.username.errors %}
+                <small class="text-danger d-block mt-1"><i class="bi bi-exclamation-circle me-1"></i>{{ err }}</small>
+              {% endfor %}
+            </div>
+
+            <div class="col-sm-6">
+              {{ form.email.label(class="form-label fw-medium small") }}
+              {{ form.email(class="form-control", placeholder="nama@email.com") }}
+              {% for err in form.email.errors %}
+                <small class="text-danger d-block mt-1"><i class="bi bi-exclamation-circle me-1"></i>{{ err }}</small>
+              {% endfor %}
+            </div>
           </div>
+
           <div class="mb-3">
-            {{ form.email.label(class="form-label") }}
-            {{ form.email(class="form-control") }}
-            {% for err in form.email.errors %}<small class="text-danger">{{ err }}</small>{% endfor %}
+            {{ form.full_name.label(class="form-label fw-medium small") }}
+            {{ form.full_name(class="form-control", placeholder="Nama lengkap Anda") }}
+            {% for err in form.full_name.errors %}
+              <small class="text-danger d-block mt-1"><i class="bi bi-exclamation-circle me-1"></i>{{ err }}</small>
+            {% endfor %}
           </div>
-          <div class="mb-3">
-            {{ form.full_name.label(class="form-label") }}
-            {{ form.full_name(class="form-control") }}
+
+          <div class="row g-3 mb-4">
+            <div class="col-sm-6">
+              {{ form.password.label(class="form-label fw-medium small") }}
+              {{ form.password(class="form-control", placeholder="Minimal 8 karakter") }}
+              {% for err in form.password.errors %}
+                <small class="text-danger d-block mt-1"><i class="bi bi-exclamation-circle me-1"></i>{{ err }}</small>
+              {% endfor %}
+            </div>
+
+            <div class="col-sm-6">
+              {{ form.confirm_password.label(class="form-label fw-medium small") }}
+              {{ form.confirm_password(class="form-control", placeholder="Ulangi password") }}
+              {% for err in form.confirm_password.errors %}
+                <small class="text-danger d-block mt-1"><i class="bi bi-exclamation-circle me-1"></i>{{ err }}</small>
+              {% endfor %}
+            </div>
           </div>
-          <div class="mb-3">
-            {{ form.password.label(class="form-label") }}
-            {{ form.password(class="form-control") }}
-            {% for err in form.password.errors %}<small class="text-danger">{{ err }}</small>{% endfor %}
-          </div>
-          <div class="mb-3">
-            {{ form.confirm_password.label(class="form-label") }}
-            {{ form.confirm_password(class="form-control") }}
-            {% for err in form.confirm_password.errors %}<small class="text-danger">{{ err }}</small>{% endfor %}
-          </div>
-          {{ form.submit(class="btn btn-success w-100") }}
+
+          {{ form.submit(class="btn btn-success w-100 py-2 fw-semibold") }}
         </form>
+
+        <hr class="my-4">
+        <p class="mb-0 text-center small text-muted">
+          Sudah punya akun? <a href="{{ url_for('auth.login') }}" class="fw-semibold text-decoration-none">Login di sini</a>
+        </p>
       </div>
     </div>
   </div>

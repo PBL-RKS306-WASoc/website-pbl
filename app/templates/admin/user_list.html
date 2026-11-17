@@ -1,42 +1,108 @@
 {% extends "base.html" %}
 {% block title %}Manajemen Pengguna - Toko PBL 306{% endblock %}
+
 {% block content %}
-<h3 class="mb-3">Manajemen Pengguna</h3>
-<form method="get" class="row g-2 align-items-end mb-3">
-  <div class="col-auto"><label class="form-label small mb-0">Cari</label>
-    <input type="text" name="q" value="{{ q }}" maxlength="50" placeholder="username / email" class="form-control form-control-sm"></div>
-  <div class="col-auto"><label class="form-label small mb-0">Role</label>
-    <select name="role" class="form-select form-select-sm">
-      <option value="all">semua</option>
-      {% for r in roles %}<option value="{{ r }}" {% if role == r %}selected{% endif %}>{{ r }}</option>{% endfor %}
-    </select></div>
-  <div class="col-auto"><button class="btn btn-sm btn-primary">Terapkan</button></div>
-</form>
-<div class="table-responsive">
-  <table class="table table-bordered align-middle bg-white">
-    <thead class="table-light"><tr><th>#</th><th>Username</th><th>Email</th><th>Role</th><th>Status</th><th>Terdaftar (UTC)</th><th></th></tr></thead>
-    <tbody>
-    {% for u in pag.items %}
-      <tr>
-        <td>{{ u.id }}</td><td>{{ u.username }}</td><td>{{ u.email }}</td>
-        <td><span class="badge {% if u.role == 'admin' %}bg-warning text-dark{% else %}bg-secondary{% endif %}">{{ u.role }}</span></td>
-        <td>{% if not u.is_enabled %}<span class="badge bg-danger">Nonaktif</span>
-            {% elif u.is_locked %}<span class="badge bg-warning text-dark">Terkunci</span>
-            {% else %}<span class="badge bg-success">Aktif</span>{% endif %}</td>
-        <td>{{ u.created_at.strftime('%d/%m/%Y %H:%M') if u.created_at else '-' }}</td>
-        <td><a class="btn btn-sm btn-outline-primary" href="{{ url_for('admin_users.detail', user_id=u.id) }}">Kelola</a></td>
-      </tr>
-    {% else %}
-      <tr><td colspan="7" class="text-center text-muted">Tidak ada pengguna.</td></tr>
-    {% endfor %}
-    </tbody>
-  </table>
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-4">
+  <div>
+    <h3 class="fw-bold mb-0"><i class="bi bi-people-fill text-primary me-2"></i>Manajemen Pengguna</h3>
+    <p class="text-muted small mb-0">Kelola hak akses (role), penguncian sementara, dan status aktif akun</p>
+  </div>
 </div>
-<nav class="d-flex justify-content-between align-items-center">
-  <span class="small text-muted">Halaman {{ pag.page }} dari {{ pag.pages or 1 }} ({{ pag.total }} pengguna)</span>
+
+<!-- Form Pencarian & Filter Role -->
+<div class="card border-0 shadow-sm rounded-4 mb-4">
+  <div class="card-body p-3 p-md-4">
+    <form method="get" class="row g-3 align-items-end">
+      <div class="col-md-5">
+        <label class="form-label small fw-medium text-muted mb-1">Cari Pengguna</label>
+        <div class="input-group">
+          <span class="input-group-text bg-white border-end-0"><i class="bi bi-search text-muted"></i></span>
+          <input type="text" name="q" value="{{ q }}" maxlength="50" placeholder="Cari username atau email..." class="form-control border-start-0">
+        </div>
+      </div>
+      <div class="col-md-4">
+        <label class="form-label small fw-medium text-muted mb-1">Filter Role</label>
+        <select name="role" class="form-select">
+          <option value="all">Semua Role</option>
+          {% for r in roles %}
+            <option value="{{ r }}" {% if role == r %}selected{% endif %}>{{ r|title }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="col-md-3 d-flex gap-2">
+        <button type="submit" class="btn btn-primary w-100 fw-semibold">Terapkan</button>
+        <a href="{{ url_for('admin_users.index') }}" class="btn btn-outline-secondary" title="Reset">
+          <i class="bi bi-arrow-counterclockwise"></i>
+        </a>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Tabel Pengguna -->
+<div class="card border-0 shadow-sm rounded-4 overflow-hidden mb-3">
+  <div class="table-responsive">
+    <table class="table table-hover align-middle mb-0 bg-white">
+      <thead class="table-light text-muted small text-uppercase">
+        <tr>
+          <th class="ps-4">ID</th>
+          <th>Username</th>
+          <th>Email</th>
+          <th>Role</th>
+          <th>Status Akun</th>
+          <th>Terdaftar (UTC)</th>
+          <th class="pe-4 text-end">Aksi</th>
+        </tr>
+      </thead>
+      <tbody>
+      {% for u in pag.items %}
+        <tr>
+          <td class="ps-4 text-muted fw-medium">#{{ u.id }}</td>
+          <td class="fw-bold text-dark">{{ u.username }}</td>
+          <td class="text-muted">{{ u.email }}</td>
+          <td>
+            {% if u.role == 'admin' %}
+              <span class="badge bg-warning text-dark text-uppercase"><i class="bi bi-shield-fill me-1"></i>Admin</span>
+            {% else %}
+              <span class="badge bg-secondary bg-opacity-10 text-secondary border text-uppercase">Customer</span>
+            {% endif %}
+          </td>
+          <td>
+            {% if not u.is_enabled %}
+              <span class="badge rounded-pill bg-danger"><i class="bi bi-slash-circle me-1"></i>Nonaktif</span>
+            {% elif u.is_locked %}
+              <span class="badge rounded-pill bg-warning text-dark"><i class="bi bi-lock-fill me-1"></i>Terkunci</span>
+            {% else %}
+              <span class="badge rounded-pill bg-success"><i class="bi bi-check-circle me-1"></i>Aktif</span>
+            {% endif %}
+          </td>
+          <td class="text-muted small">{{ u.created_at.strftime('%d/%m/%Y %H:%M') if u.created_at else '-' }}</td>
+          <td class="pe-4 text-end">
+            <a class="btn btn-sm btn-outline-primary fw-medium px-3" href="{{ url_for('admin_users.detail', user_id=u.id) }}">
+              <i class="bi bi-sliders me-1"></i> Kelola
+            </a>
+          </td>
+        </tr>
+      {% else %}
+        <tr>
+          <td colspan="7" class="text-center py-5 text-muted">Tidak ada pengguna ditemukan.</td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Pagination -->
+<nav class="d-flex flex-wrap justify-content-between align-items-center gap-2">
+  <span class="small text-muted">Halaman <strong>{{ pag.page }}</strong> dari <strong>{{ pag.pages or 1 }}</strong> ({{ pag.total }} pengguna)</span>
   <div class="btn-group">
-    {% if pag.has_prev %}<a class="btn btn-sm btn-outline-secondary" href="{{ url_for('admin_users.index', page=pag.prev_num, **args) }}">&laquo;</a>{% endif %}
-    {% if pag.has_next %}<a class="btn btn-sm btn-outline-secondary" href="{{ url_for('admin_users.index', page=pag.next_num, **args) }}">&raquo;</a>{% endif %}
+    {% if pag.has_prev %}
+      <a class="btn btn-sm btn-outline-secondary bg-white" href="{{ url_for('admin_users.index', page=pag.prev_num, **args) }}">&laquo; Sebelumnya</a>
+    {% endif %}
+    {% if pag.has_next %}
+      <a class="btn btn-sm btn-outline-secondary bg-white" href="{{ url_for('admin_users.index', page=pag.next_num, **args) }}">Berikutnya &raquo;</a>
+    {% endif %}
   </div>
 </nav>
 {% endblock %}

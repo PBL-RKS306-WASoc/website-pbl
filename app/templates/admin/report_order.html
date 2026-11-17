@@ -1,34 +1,124 @@
 {% extends "base.html" %}
 {% block title %}Pesanan #{{ order.id }} - Admin{% endblock %}
+
 {% block content %}
-<h3 class="mb-3">Pesanan #{{ order.id }} <span class="badge bg-secondary fs-6">{{ order.status }}</span></h3>
-<p><b>Customer:</b> {{ customer.username }} ({{ customer.email }})<br>
-   <b>Dibuat:</b> {{ order.created_at.strftime('%d/%m/%Y %H:%M') }} UTC<br>
-   <b>Alamat:</b> {{ order.shipping_address }}</p>
-<table class="table table-bordered bg-white align-middle">
-  <thead class="table-light"><tr><th>Barang</th><th class="text-end">Harga</th><th class="text-end">Jumlah</th><th class="text-end">Subtotal</th></tr></thead>
-  <tbody>
-  {% for it in order.items %}
-    <tr><td>{{ it.product.name }}</td><td class="text-end">{{ it.unit_price_idr|rupiah }}</td>
-        <td class="text-end">{{ it.quantity }}</td><td class="text-end">{{ (it.unit_price_idr * it.quantity)|rupiah }}</td></tr>
-  {% endfor %}
-  </tbody>
-  <tfoot><tr><th colspan="3" class="text-end">Total</th><th class="text-end">{{ order.total_idr|rupiah }}</th></tr></tfoot>
-</table>
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-4">
+  <div class="d-flex align-items-center gap-3">
+    <a href="{{ url_for('admin_reports.index') }}" class="btn btn-outline-secondary btn-sm">
+      <i class="bi bi-arrow-left"></i>
+    </a>
+    <div>
+      <h3 class="fw-bold mb-0 d-inline-block me-2">Detail Pesanan #{{ order.id }}</h3>
+      {% if order.status == 'pending_payment' %}
+        <span class="badge rounded-pill bg-warning text-dark">Menunggu Pembayaran</span>
+      {% elif order.status == 'waiting_verification' %}
+        <span class="badge rounded-pill bg-info text-dark">Menunggu Verifikasi</span>
+      {% elif order.status == 'paid' %}
+        <span class="badge rounded-pill bg-success">Lunas</span>
+      {% elif order.status == 'rejected' %}
+        <span class="badge rounded-pill bg-danger">Ditolak</span>
+      {% elif order.status == 'cancelled' %}
+        <span class="badge rounded-pill bg-secondary">Dibatalkan</span>
+      {% else %}
+        <span class="badge rounded-pill bg-secondary">{{ order.status }}</span>
+      {% endif %}
+    </div>
+  </div>
+</div>
 
-{% if order.payment %}
-<p>Pembayaran: <span class="badge bg-info text-dark">{{ order.payment.status }}</span>
-  <a href="{{ url_for('admin_payments.detail', order_id=order.id) }}" class="ms-2">Buka verifikasi</a></p>
-{% endif %}
+<div class="row g-4 align-items-start">
+  <!-- Kolom Kiri: Info Customer & Tabel Barang -->
+  <div class="col-lg-8">
+    <div class="card border-0 shadow-sm rounded-4 mb-4">
+      <div class="card-body p-4">
+        <h6 class="fw-bold text-uppercase text-muted small mb-3">Informasi Transaksi</h6>
+        <div class="row g-2 small">
+          <div class="col-sm-3 text-muted">Customer</div>
+          <div class="col-sm-9 fw-semibold">{{ customer.username }} ({{ customer.email }})</div>
+          
+          <div class="col-sm-3 text-muted">Waktu Dibuat</div>
+          <div class="col-sm-9">{{ order.created_at.strftime('%d/%m/%Y %H:%M') }} UTC</div>
+          
+          <div class="col-sm-3 text-muted">Alamat Pengiriman</div>
+          <div class="col-sm-9">{{ order.shipping_address }}</div>
+        </div>
+      </div>
+    </div>
 
-{% if cancellable %}
-<form method="post" action="{{ url_for('admin_reports.cancel', order_id=order.id) }}" class="d-flex gap-2 mb-3" onsubmit="return confirm('Batalkan pesanan ini dan kembalikan stok?')">
-  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-  <input type="text" name="reason" maxlength="200" class="form-control" placeholder="Alasan pembatalan (opsional)">
-  <button class="btn btn-danger text-nowrap">Batalkan Pesanan</button>
-</form>
-{% elif order.status == 'paid' %}
-<div class="alert alert-secondary">Pesanan yang sudah dibayar tidak dapat dibatalkan dari sini.</div>
-{% endif %}
-<a href="{{ url_for('admin_reports.index') }}" class="btn btn-outline-secondary">&laquo; Laporan</a>
+    <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+      <div class="table-responsive">
+        <table class="table align-middle mb-0 bg-white">
+          <thead class="table-light text-muted small text-uppercase">
+            <tr>
+              <th class="ps-4">Barang</th>
+              <th class="text-end">Harga</th>
+              <th class="text-center">Jumlah</th>
+              <th class="pe-4 text-end">Subtotal</th>
+            </tr>
+          </thead>
+          <tbody>
+          {% for it in order.items %}
+            <tr>
+              <td class="ps-4 fw-medium">{{ it.product.name }}</td>
+              <td class="text-end text-nowrap">{{ it.unit_price_idr|rupiah }}</td>
+              <td class="text-center">{{ it.quantity }}</td>
+              <td class="pe-4 text-end fw-semibold text-nowrap">{{ (it.unit_price_idr * it.quantity)|rupiah }}</td>
+            </tr>
+          {% endfor %}
+          </tbody>
+          <tfoot class="table-light">
+            <tr>
+              <th colspan="3" class="text-end py-3">Total Pesanan</th>
+              <th class="pe-4 text-end py-3 text-primary fs-6">{{ order.total_idr|rupiah }}</th>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Kolom Kanan: Status Pembayaran & Aksi Pembatalan -->
+  <div class="col-lg-4">
+    {% if order.payment %}
+    <div class="card border-0 shadow-sm rounded-4 mb-4">
+      <div class="card-body p-4">
+        <h6 class="fw-bold mb-3"><i class="bi bi-credit-card text-primary me-2"></i>Status Pembayaran</h6>
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <span class="text-muted small">Status Bukti</span>
+          <span class="badge bg-info text-dark text-uppercase">{{ order.payment.status }}</span>
+        </div>
+        <a href="{{ url_for('admin_payments.detail', order_id=order.id) }}" class="btn btn-outline-primary btn-sm w-100">
+          <i class="bi bi-box-arrow-up-right me-1"></i> Buka Halaman Verifikasi
+        </a>
+      </div>
+    </div>
+    {% endif %}
+
+    <div class="card border-0 shadow-sm rounded-4">
+      <div class="card-body p-4">
+        <h6 class="fw-bold mb-3"><i class="bi bi-shield-exclamation text-danger me-2"></i>Kontrol Pesanan</h6>
+        {% if cancellable %}
+          <p class="text-muted small mb-3">Membatalkan pesanan akan mengembalikan stok barang ke katalog secara otomatis.</p>
+          <form method="post" action="{{ url_for('admin_reports.cancel', order_id=order.id) }}" onsubmit="return confirm('Batalkan pesanan ini dan kembalikan stok?')">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <div class="mb-3">
+              <input type="text" name="reason" maxlength="200" class="form-control" placeholder="Alasan pembatalan (opsional)">
+            </div>
+            <button type="submit" class="btn btn-danger w-100 fw-semibold">
+              <i class="bi bi-x-octagon me-1"></i> Batalkan Pesanan
+            </button>
+          </form>
+        {% elif order.status == 'paid' %}
+          <div class="alert alert-secondary border-0 small mb-0">
+            <i class="bi bi-info-circle me-1"></i> Pesanan yang sudah dibayar lunas tidak dapat dibatalkan dari halaman ini.
+          </div>
+        {% else %}
+          <div class="alert alert-secondary border-0 small mb-0">
+            Tidak ada aksi pembatalan yang tersedia untuk status pesanan saat ini.
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
 {% endblock %}

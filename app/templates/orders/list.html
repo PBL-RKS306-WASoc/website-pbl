@@ -1,26 +1,79 @@
 {% extends "base.html" %}
 {% block title %}Pesanan Saya - Toko PBL 306{% endblock %}
+
 {% block content %}
-<h3 class="mb-3">Pesanan Saya</h3>
-{% if orders %}
-<div class="table-responsive">
-  <table class="table table-bordered align-middle bg-white">
-    <thead class="table-light"><tr><th>#</th><th>Tanggal (UTC)</th><th class="text-end">Total</th><th>Status</th><th>Metode pembayaran</th><th></th></tr></thead>
-    <tbody>
-    {% for o in orders %}
-      <tr>
-        <td>{{ o.id }}</td>
-        <td>{{ o.created_at.strftime('%d/%m/%Y %H:%M') }}</td>
-        <td class="text-end">{{ o.total_idr|rupiah }}</td>
-        <td><span class="badge bg-secondary">{{ o.status }}</span></td>
-        <td>{{ o.payment_method or ('manual' if o.payment else '-') }}</td>
-        <td><a href="{{ url_for('orders.detail', order_id=o.id) }}" class="btn btn-sm btn-outline-primary">Detail</a></td>
-      </tr>
-    {% endfor %}
-    </tbody>
-  </table>
+<div class="d-flex align-items-center justify-content-between mb-4">
+  <h3 class="fw-bold mb-0"><i class="bi bi-bag-check text-primary me-2"></i>Pesanan Saya</h3>
+  <a href="{{ url_for('catalog.index') }}" class="btn btn-outline-primary btn-sm">
+    <i class="bi bi-plus-lg me-1"></i> Belanja Lagi
+  </a>
 </div>
+
+{% if orders %}
+<div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+  <div class="table-responsive">
+    <table class="table table-hover align-middle mb-0 bg-white">
+      <thead class="table-light text-muted small text-uppercase">
+        <tr>
+          <th class="ps-4">ID Pesanan</th>
+          <th>Tanggal (UTC)</th>
+          <th class="text-end">Total</th>
+          <th>Status</th>
+          <th>Metode Pembayaran</th>
+          <th class="pe-4 text-end">Aksi</th>
+        </tr>
+      </thead>
+      <tbody>
+      {% for o in orders %}
+        <tr>
+          <td class="ps-4 fw-bold text-dark">#{{ o.id }}</td>
+          <td class="text-muted small">{{ o.created_at.strftime('%d/%m/%Y %H:%M') }}</td>
+          <td class="text-end fw-bold text-primary">{{ o.total_idr|rupiah }}</td>
+          <td>
+            {% if o.status == 'pending_payment' %}
+              <span class="badge rounded-pill bg-warning text-dark"><i class="bi bi-clock me-1"></i>Menunggu Pembayaran</span>
+            {% elif o.status == 'waiting_verification' %}
+              <span class="badge rounded-pill bg-info text-dark"><i class="bi bi-hourglass-split me-1"></i>Menunggu Verifikasi</span>
+            {% elif o.status == 'paid' %}
+              <span class="badge rounded-pill bg-success"><i class="bi bi-check-circle me-1"></i>Lunas</span>
+            {% elif o.status == 'rejected' %}
+              <span class="badge rounded-pill bg-danger"><i class="bi bi-x-circle me-1"></i>Ditolak</span>
+            {% elif o.status == 'cancelled' %}
+              <span class="badge rounded-pill bg-secondary"><i class="bi bi-slash-circle me-1"></i>Dibatalkan</span>
+            {% else %}
+              <span class="badge rounded-pill bg-secondary">{{ o.status }}</span>
+            {% endif %}
+          </td>
+          <td>
+            {% set method = o.payment_method or ('manual' if o.payment else '-') %}
+            {% if method == 'midtrans' %}
+              <span class="badge bg-primary-subtle text-primary border border-primary-subtle text-uppercase">Midtrans</span>
+            {% elif method == 'manual' %}
+              <span class="badge bg-secondary-subtle text-secondary border border-secondary-subtle text-uppercase">Transfer Manual</span>
+            {% else %}
+              <span class="text-muted small">-</span>
+            {% endif %}
+          </td>
+          <td class="pe-4 text-end">
+            <a href="{{ url_for('orders.detail', order_id=o.id) }}" class="btn btn-sm btn-outline-primary fw-medium">
+              Detail <i class="bi bi-chevron-right"></i>
+            </a>
+          </td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
 {% else %}
-<div class="alert alert-info">Belum ada pesanan.</div>
+<div class="card border-0 shadow-sm rounded-4 text-center py-5">
+  <div class="card-body">
+    <i class="bi bi-receipt display-1 text-muted opacity-50"></i>
+    <h4 class="fw-bold mt-3">Belum Ada Pesanan</h4>
+    <p class="text-muted mb-4">Riwayat transaksi dan status pembayaran Anda akan muncul di sini.</p>
+    <a href="{{ url_for('catalog.index') }}" class="btn btn-primary px-4 fw-semibold">Lihat Katalog Produk</a>
+  </div>
+</div>
 {% endif %}
 {% endblock %}
