@@ -1,16 +1,110 @@
+:root {
+    --sm-night: #1E1B4B;       /* Biru Langit Malam (Keunguan Pekat) */
+    --sm-twilight: #312E81;    /* Biru Ungu Senja */
+    --sm-sun: #FFD60A;         /* Kuning Keemasan Matahari Cerah (Lebih Kuning, Bukan Oranye) */
+    --sm-sun-hover: #EAB308;   /* Kuning Emas Matang saat Hover */
+    --sm-day-bg: #F8F9FC;      /* Putih Sejuk Siang (Background) */
+    --sm-white: #FFFFFF;       /* Putih Murni (Card) */
+}
+
 body {
     font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+    background-color: var(--sm-day-bg) !important;
     color: #1E293B;
 }
 
-/* Efek Hover & Zoom Halus Kartu Produk */
+/* Font Khusus Judul Brand & Kuliner */
+.brand-font {
+    font-family: 'Fraunces', Georgia, serif;
+    letter-spacing: -0.02em;
+}
+
+/* Font Monospace untuk Harga, ID Pesanan & Struk Kasir */
+.mono-price {
+    font-family: 'JetBrains Mono', monospace;
+    letter-spacing: -0.03em;
+}
+
+/* Identitas Warna Navbar & Hero Siang Malam */
+.navbar-siang-malam {
+    background-color: var(--sm-night) !important;
+    border-bottom: 3px solid var(--sm-sun);
+}
+
+.hero-siang-malam {
+    background: radial-gradient(circle at 85% 20%, #4338CA 0%, var(--sm-twilight) 45%, var(--sm-night) 100%);
+    border-bottom: 4px solid var(--sm-sun);
+    position: relative;
+    overflow: hidden;
+}
+
+/* Override Global Bootstrap ke Palet Siang Malam */
+.btn-primary {
+    background-color: var(--sm-night);
+    border-color: var(--sm-night);
+    color: var(--sm-white);
+}
+
+.btn-primary:hover, .btn-primary:focus, .btn-primary:active {
+    background-color: var(--sm-twilight) !important;
+    border-color: var(--sm-twilight) !important;
+    color: var(--sm-sun) !important;
+}
+
+.btn-outline-primary {
+    color: var(--sm-night);
+    border-color: var(--sm-night);
+}
+
+.btn-outline-primary:hover {
+    background-color: var(--sm-night);
+    border-color: var(--sm-night);
+    color: var(--sm-sun);
+}
+
+.btn-sun {
+    background-color: var(--sm-sun);
+    border-color: var(--sm-sun);
+    color: var(--sm-night);
+    font-weight: 700;
+}
+
+.btn-sun:hover {
+    background-color: var(--sm-sun-hover);
+    border-color: var(--sm-sun-hover);
+    color: var(--sm-white);
+}
+
+.btn-warning, .bg-warning {
+    background-color: var(--sm-sun) !important;
+    border-color: var(--sm-sun) !important;
+    color: var(--sm-night) !important;
+}
+
+.btn-warning:hover {
+    background-color: var(--sm-sun-hover) !important;
+    border-color: var(--sm-sun-hover) !important;
+    color: var(--sm-night) !important;
+}
+
+.text-primary {
+    color: var(--sm-night) !important;
+}
+
+.text-sun {
+    color: var(--sm-sun) !important;
+}
+
+/* Efek Hover & Zoom Halus Kartu Menu */
 .product-card {
     transition: transform 0.22s ease, box-shadow 0.22s ease;
+    border: 1px solid #E2E8F0 !important;
 }
 
 .product-card:hover {
     transform: translateY(-5px);
-    box-shadow: 0 12px 24px rgba(15, 23, 42, 0.09) !important;
+    box-shadow: 0 12px 24px rgba(30, 27, 75, 0.1) !important;
+    border-color: var(--sm-sun) !important;
 }
 
 .product-img-wrapper {
@@ -35,14 +129,32 @@ body {
     min-height: 2.6em;
 }
 
-/* Quick-Filter Category Pills */
+/* Quick-Filter Category Pills (Sudah diperbaiki kontras Normal, Hover & Active) */
 .category-pill {
     white-space: nowrap;
     border-radius: 50rem;
-    padding: 0.4rem 1rem;
+    padding: 0.42rem 1.15rem;
     font-size: 0.85rem;
     font-weight: 600;
+    background-color: var(--sm-white);
+    color: var(--sm-night);
+    border: 1.5px solid #CBD5E1;
     transition: all 0.2s ease;
+}
+
+.category-pill:hover,
+.category-pill:focus {
+    background-color: var(--sm-twilight) !important;
+    color: var(--sm-sun) !important;
+    border-color: var(--sm-twilight) !important;
+}
+
+.category-pill.active-pill,
+.category-pill.active-pill:hover,
+.category-pill.active-pill:focus {
+    background-color: var(--sm-night) !important;
+    color: var(--sm-sun) !important;
+    border-color: var(--sm-night) !important;
 }
 
 /* Progress Stepper Alur Belanja */
@@ -83,12 +195,12 @@ body {
     justify-content: center;
     font-weight: 700;
     margin-bottom: 0.4rem;
-    border: 3px solid #F8FAFC;
+    border: 3px solid var(--sm-day-bg);
 }
 
 .step-item.active .step-circle {
-    background-color: #2563EB;
-    color: #FFFFFF;
+    background-color: var(--sm-night);
+    color: var(--sm-sun);
 }
 
 .step-item.completed .step-circle {
@@ -106,7 +218,7 @@ body {
 
 .star-rating-picker i.active,
 .star-rating-picker i:hover {
-    color: #F59E0B;
+    color: var(--sm-sun);
     transform: scale(1.1);
 }
 
@@ -118,6 +230,6 @@ input[type="number"]::-webkit-inner-spin-button {
 }
 
 input[type="number"] {
-    -moz-appearance: textfield; /* Untuk Firefox */
+    -moz-appearance: textfield;
     appearance: textfield;
 }
