@@ -2,6 +2,22 @@
 {% block title %}Checkout - Toko PBL 306{% endblock %}
 
 {% block content %}
+<!-- Progress Stepper Alur Belanja (Tahap 1 Selesai, Tahap 2 Aktif) -->
+<div class="checkout-stepper">
+  <div class="step-item completed">
+    <div class="step-circle"><i class="bi bi-check-lg"></i></div>
+    <div class="small fw-medium text-success">Keranjang</div>
+  </div>
+  <div class="step-item active">
+    <div class="step-circle">2</div>
+    <div class="small fw-bold text-primary">Checkout</div>
+  </div>
+  <div class="step-item">
+    <div class="step-circle">3</div>
+    <div class="small text-muted">Pembayaran</div>
+  </div>
+</div>
+
 <h3 class="fw-bold mb-4"><i class="bi bi-bag-check-fill text-primary me-2"></i>Checkout Pesanan</h3>
 
 {% set blocked = rows|rejectattr('available')|list|length > 0 %}
@@ -65,9 +81,9 @@
       </div>
     </div>
 
-    <!-- Kolom Kanan: Ringkasan Pembayaran -->
+    <!-- Kolom Kanan: Ringkasan Pembayaran (Sticky) -->
     <div class="col-lg-5">
-      <div class="card border-0 shadow-sm rounded-4">
+      <div class="card border-0 shadow-sm rounded-4 sticky-top" style="top: 85px; z-index: 10;">
         <div class="card-body p-4">
           <h5 class="fw-bold mb-3">Ringkasan Tagihan</h5>
           
@@ -87,7 +103,7 @@
             </div>
           {% endif %}
 
-          <button type="submit" class="btn btn-success w-100 py-2 fw-semibold mb-2" {% if blocked %}disabled{% endif %}>
+          <button type="submit" class="btn btn-success w-100 py-2 fw-semibold mb-2 shadow-sm" {% if blocked %}disabled{% endif %}>
             <i class="bi bi-check2-circle me-1"></i> Buat Pesanan Sekarang
           </button>
           <a href="{{ url_for('cart.view') }}" class="btn btn-outline-secondary w-100 btn-sm">

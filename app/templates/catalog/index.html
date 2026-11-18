@@ -14,7 +14,7 @@
 </div>
 
 <!-- Header & Form Pencarian / Filter Kategori -->
-<div class="card border-0 shadow-sm mb-4 rounded-3">
+<div class="card border-0 shadow-sm mb-3 rounded-3">
   <div class="card-body p-3">
     <div class="row align-items-center g-3">
       <div class="col-lg-4">
@@ -45,13 +45,27 @@
   </div>
 </div>
 
+<!-- Baris Quick-Filter Category Pills (Ala Enterkomputer / Eiger) -->
+<div class="d-flex align-items-center gap-2 overflow-auto pb-2 mb-3">
+  <a href="{{ url_for('catalog.index', q=q) }}" 
+     class="btn category-pill {% if not selected_category %}btn-dark shadow-sm{% else %}btn-outline-secondary bg-white{% endif %}">
+    <i class="bi bi-grid-fill me-1"></i> Semua Produk
+  </a>
+  {% for c in categories %}
+    <a href="{{ url_for('catalog.index', category_id=c.id, q=q) }}" 
+       class="btn category-pill {% if selected_category == c.id %}btn-primary shadow-sm{% else %}btn-outline-secondary bg-white{% endif %}">
+      {{ c.name }}
+    </a>
+  {% endfor %}
+</div>
+
 <!-- Grid Kartu Produk -->
 <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4">
   {% for p in products %}
   <div class="col">
     <div class="card h-100 border-0 shadow-sm product-card rounded-3 overflow-hidden">
-      <!-- Gambar Produk (Tetap memakai endpoint catalog.product_image) -->
-      <a href="{{ url_for('catalog.detail', product_id=p.id) }}" class="text-decoration-none position-relative bg-white">
+      <!-- Gambar Produk (Sudah ditambah class product-img-wrapper d-block untuk efek zoom) -->
+      <a href="{{ url_for('catalog.detail', product_id=p.id) }}" class="text-decoration-none position-relative product-img-wrapper d-block bg-white">
         {% if p.image_filename %}
           <img src="{{ url_for('catalog.product_image', product_id=p.id) }}"
                alt="{{ p.name }}" class="card-img-top"

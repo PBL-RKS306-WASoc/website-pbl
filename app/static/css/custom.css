@@ -3,20 +3,121 @@ body {
     color: #1E293B;
 }
 
+/* Efek Hover & Zoom Halus Kartu Produk */
 .product-card {
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    transition: transform 0.22s ease, box-shadow 0.22s ease;
 }
 
 .product-card:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 10px 20px rgba(15, 23, 42, 0.08) !important;
+    transform: translateY(-5px);
+    box-shadow: 0 12px 24px rgba(15, 23, 42, 0.09) !important;
 }
 
-/* Membatasi judul produk maksimal 2 baris dengan titik-titik (...) */
+.product-img-wrapper {
+    overflow: hidden;
+    background-color: #ffffff;
+}
+
+.product-img-wrapper img {
+    transition: transform 0.35s ease;
+}
+
+.product-card:hover .product-img-wrapper img {
+    transform: scale(1.06);
+}
+
+/* Membatasi judul produk maksimal 2 baris */
 .text-truncate-2 {
     display: -webkit-box;
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
     min-height: 2.6em;
+}
+
+/* Quick-Filter Category Pills */
+.category-pill {
+    white-space: nowrap;
+    border-radius: 50rem;
+    padding: 0.4rem 1rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    transition: all 0.2s ease;
+}
+
+/* Progress Stepper Alur Belanja */
+.checkout-stepper {
+    display: flex;
+    justify-content: space-between;
+    position: relative;
+    max-width: 600px;
+    margin: 0 auto 2rem auto;
+}
+
+.checkout-stepper::before {
+    content: "";
+    position: absolute;
+    top: 18px;
+    left: 10%;
+    right: 10%;
+    height: 3px;
+    background-color: #E2E8F0;
+    z-index: 0;
+}
+
+.step-item {
+    position: relative;
+    z-index: 1;
+    text-align: center;
+    flex: 1;
+}
+
+.step-circle {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    background-color: #E2E8F0;
+    color: #64748B;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    margin-bottom: 0.4rem;
+    border: 3px solid #F8FAFC;
+}
+
+.step-item.active .step-circle {
+    background-color: #2563EB;
+    color: #FFFFFF;
+}
+
+.step-item.completed .step-circle {
+    background-color: #16A34A;
+    color: #FFFFFF;
+}
+
+/* Bintang Ulasan Interaktif */
+.star-rating-picker i {
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: #CBD5E1;
+    transition: color 0.15s ease, transform 0.15s ease;
+}
+
+.star-rating-picker i.active,
+.star-rating-picker i:hover {
+    color: #F59E0B;
+    transform: scale(1.1);
+}
+
+/* Menghilangkan panah atas-bawah bawaan browser pada input number */
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+input[type="number"] {
+    -moz-appearance: textfield; /* Untuk Firefox */
+    appearance: textfield;
 }

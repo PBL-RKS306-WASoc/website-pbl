@@ -2,6 +2,22 @@
 {% block title %}Keranjang Belanja - Toko PBL 306{% endblock %}
 
 {% block content %}
+<!-- Progress Stepper Alur Belanja (Tahap 1 Aktif) -->
+<div class="checkout-stepper">
+  <div class="step-item active">
+    <div class="step-circle">1</div>
+    <div class="small fw-bold text-primary">Keranjang</div>
+  </div>
+  <div class="step-item">
+    <div class="step-circle">2</div>
+    <div class="small text-muted">Checkout</div>
+  </div>
+  <div class="step-item">
+    <div class="step-circle">3</div>
+    <div class="small text-muted">Pembayaran</div>
+  </div>
+</div>
+
 <div class="d-flex align-items-center justify-content-between mb-4">
   <h3 class="fw-bold mb-0"><i class="bi bi-cart3 text-primary me-2"></i>Keranjang Belanja</h3>
   {% if rows %}
@@ -71,9 +87,9 @@
     </div>
   </div>
 
-  <!-- Kolom Kanan: Ringkasan Belanja -->
+  <!-- Kolom Kanan: Ringkasan Belanja (Sticky) -->
   <div class="col-lg-4">
-    <div class="card border-0 shadow-sm rounded-4">
+    <div class="card border-0 shadow-sm rounded-4 sticky-top" style="top: 85px; z-index: 10;">
       <div class="card-body p-4">
         <h5 class="fw-bold mb-3">Ringkasan Belanja</h5>
         <div class="d-flex justify-content-between text-muted mb-2">
@@ -85,7 +101,7 @@
           <span class="fw-semibold text-dark">Total Harga</span>
           <span class="fs-5 fw-bold text-primary">{{ total|rupiah }}</span>
         </div>
-        <a href="{{ url_for('orders.checkout') }}" class="btn btn-success w-100 py-2 fw-semibold">
+        <a href="{{ url_for('orders.checkout') }}" class="btn btn-success w-100 py-2 fw-semibold shadow-sm">
           Lanjut ke Checkout <i class="bi bi-arrow-right ms-1"></i>
         </a>
       </div>
